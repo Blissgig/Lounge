@@ -1,0 +1,30 @@
+﻿<Window x:Class="Lounge.LoungeMediaFrame"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lounge"
+        mc:Ignorable="d"
+        Title="LoungeMediaFrame" 
+        Height="300" 
+        Width="300" ResizeMode="NoResize" ShowInTaskbar="False">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <MediaElement Grid.Column="0" Source="Z:\Music Vidx\Ambient Stars.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="1" Source="Z:\Music Vidx\Rock Hard.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="2" Source="Z:\Music Vidx\R2AF.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="3" Source="Z:\Music Vidx\XXX Stars (Mode Mix).wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="4" Source="Z:\Music Vidx\the new ponographers.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="5" Source="Z:\Music Vidx\xscape.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+    </Grid>
+
+    
+</Window>
