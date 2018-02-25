@@ -7,23 +7,18 @@
         mc:Ignorable="d"
         Title="LoungeMediaFrame" 
         Height="300" 
-        Width="300" ResizeMode="NoResize" ShowInTaskbar="False">
+        Width="300" 
+        ResizeMode="NoResize" 
+        ShowInTaskbar="False">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+
         </Grid.ColumnDefinitions>
 
-        <MediaElement Grid.Column="0" Source="Z:\Music Vidx\Ambient Stars.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="1" Source="Z:\Music Vidx\Rock Hard.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="2" Source="Z:\Music Vidx\R2AF.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="3" Source="Z:\Music Vidx\XXX Stars (Mode Mix).wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="4" Source="Z:\Music Vidx\the new ponographers.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="5" Source="Z:\Music Vidx\xscape.wmv" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="0" Source="" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <MediaElement Grid.Column="1" Source="" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
     </Grid>
 
     
