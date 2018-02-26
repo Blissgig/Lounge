@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Lounge.Models
 {
@@ -13,6 +14,10 @@ namespace Lounge.Models
         public string Icon { get; set; }
 
         public FileFolderType Type { get; set; }
+
+        public FileInfo File { get; set; }
+
+        public DirectoryInfo Folder { get; set; }
 
         public enum FileFolderType
         {

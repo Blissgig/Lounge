@@ -19,7 +19,6 @@ namespace Lounge
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
 
         private string applicationName = "Lounge";
-        //FileFolderData fileFolderData = new FileFolderData();
         ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
         #endregion
 
@@ -30,14 +29,36 @@ namespace Lounge
                 mainWindow = window;
                 applicationName = AppName();  //This is because of the need for this value in some functions that are threaded
 
-                //mainWindow.DataContext = FileFolderData;
-
+                //filesFolders
                 ListFiles(null);
             }
             catch (Exception ex)
             {
                 logException(ex);
             }  
+        }
+
+        public void RowSelected()
+        {
+            try
+            {
+                FileFolderData ffd = (FileFolderData)mainWindow.FoldersFiles.SelectedItem;
+
+                switch (ffd.Type)
+                {
+                    case FileFolderData.FileFolderType.Folder:
+                        ListFiles(ffd.Folder);
+                        break;
+
+                    case FileFolderData.FileFolderType.File:
+                        //TODO
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
         }
 
         public void ListFiles(DirectoryInfo directory)
@@ -47,10 +68,11 @@ namespace Lounge
                 //In case no starting directory, assume a list of drives
                 filesFolders.Clear();
 
+                FileFolderData ffd;
+
                 if (directory == null)
                 {
-                    DriveInfo drv;
-                    FileFolderData ffd;
+                    DriveInfo drv;    
                     string sTemp;
                     
                     string[] HardDrives = Directory.GetLogicalDrives();
@@ -74,6 +96,7 @@ namespace Lounge
                             ffd.Type = FileFolderData.FileFolderType.Folder;
                             ffd.Date = DateTime.Now;
                             ffd.Name = sTemp;
+                            ffd.Folder = new DirectoryInfo(drv.Name);
 
                             filesFolders.Add(ffd);
                         }
@@ -81,7 +104,34 @@ namespace Lounge
                 }
                 else
                 {
-                    //TODO:
+                    DirectoryInfo[] folders = directory.GetDirectories();
+                    FileInfo[] files = directory.GetFiles();
+
+                    foreach (DirectoryInfo folder in folders)
+                    {
+                        if (!IsSpecialFolder(folder))
+                        {
+                            ffd = new FileFolderData();
+                            ffd.Type = FileFolderData.FileFolderType.Folder;
+                            ffd.Date = Directory.GetCreationTime(folder.FullName);
+                            ffd.Name = folder.Name;
+                            ffd.Folder = folder;
+
+                            filesFolders.Add(ffd);
+                        }
+                    }
+
+                    foreach(FileInfo file in files)
+                    {
+                        //TODO: check if acceptable file type
+                        ffd = new FileFolderData();
+                        ffd.Type = FileFolderData.FileFolderType.File;
+                        ffd.Date = File.GetCreationTime(file.FullName);
+                        ffd.Name = file.Name;
+                        ffd.File = file;
+
+                        filesFolders.Add(ffd);
+                    }
                 }
 
                 mainWindow.FoldersFiles.ItemsSource = filesFolders;
@@ -90,6 +140,22 @@ namespace Lounge
             {
                 throw;
             }
+        }
+
+        private bool IsSpecialFolder(DirectoryInfo folder)
+        {
+            bool result = false;
+
+            foreach (Environment.SpecialFolder suit in Enum.GetValues(typeof(Environment.SpecialFolder)))
+            {
+                if (folder.FullName == Environment.GetFolderPath(suit))
+                {
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
         }
 
         private string AppName()

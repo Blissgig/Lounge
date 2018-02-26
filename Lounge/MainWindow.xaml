@@ -34,7 +34,7 @@
             AutoGenerateColumns="False"
             Margin="10,10,10,10" 
             VerticalAlignment="Top" 
-            Height="249">
+            SelectionChanged="FoldersFiles_SelectionChanged">
 
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Selected" Binding="{Binding Selected}" />

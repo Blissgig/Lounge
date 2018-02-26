@@ -26,18 +26,17 @@ namespace Lounge
 
         public MainWindow()
         {
-            //FileFolderData obj = new FileFolderData();
-            //obj.Name = "Test";
-            //this.DataContext = obj;
-
             InitializeComponent();
         }
-
-       
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             loungeEngine = new LoungeEngine(this);
+        }
+
+        private void FoldersFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            loungeEngine.RowSelected();
         }
     }
 
