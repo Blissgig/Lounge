@@ -9,9 +9,42 @@
         Height="350" 
         Width="525" 
         WindowStartupLocation="CenterScreen" 
-        WindowState="Maximized" Loaded="Window_Loaded"
+        WindowState="Maximized" 
+        Loaded="Window_Loaded"
         >
+
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <MediaElement 
+            Name="AudioElement" 
+            Opacity="0" />
+
+        <DataGrid 
+            Name="FoldersFiles"
+            Grid.Row="1" 
+            AutoGenerateColumns="False"
+            Margin="10,10,10,10" 
+            VerticalAlignment="Top" 
+            Height="249">
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Selected" Binding="{Binding Selected}" />
+                <DataGridTextColumn Header="Icon" Binding="{Binding Icon}"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Date" Binding="{Binding Date}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+
+
     </Grid>
 </Window>

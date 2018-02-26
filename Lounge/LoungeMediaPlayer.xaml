@@ -1,0 +1,13 @@
+﻿<UserControl x:Class="Lounge.LoungeMediaPlayer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lounge"
+             mc:Ignorable="d" 
+             d:DesignHeight="297.665" 
+             d:DesignWidth="388.132">
+    <Canvas>
+        <MediaElement Name="LoungeMediaElement" Stretch="UniformToFill" Source="Z:\Music Vidx\Rock Your World.wmv"/>
+    </Canvas>
+</UserControl>
