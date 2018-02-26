@@ -10,3 +10,15 @@ Arduino Uno: https://www.amazon.com/gp/product/B008GRTSV6/ref=oh_aui_detailpage_
 Power for the Arduino, also important for the LEDs:  https://www.amazon.com/gp/product/B06Y1LF8T5/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
 
 Specification details to come.
+
+
+------------------------
+External Assets
+* Icons
+ - Audio:  https://www.iconfinder.com/icons/173060/music_icon#size=256
+ - Photo:  https://www.iconfinder.com/icons/173070/picture_icon#size=256
+ - Video:  https://www.iconfinder.com/icons/173123/video_icon#size=256
+ - Folder: https://www.iconfinder.com/icons/173016/close_folder_icon#size=256
+ 
+* Code Libraries
+ - Bass.Net:  https://www.nuget.org/packages/Bass.Net/  (Used for audio visualization)
