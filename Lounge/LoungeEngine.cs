@@ -19,7 +19,11 @@ namespace Lounge
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
 
         private string applicationName = "Lounge";
+        private string acceptableMediaTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,*.mp3,*.wma,*.wav,*.m4a,*.png,*.jpg,*.jpeg";
+
         ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
+
+        private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
         #endregion
 
         public LoungeEngine(MainWindow window)
@@ -27,15 +31,43 @@ namespace Lounge
             try
             {
                 mainWindow = window;
-                applicationName = AppName();  //This is because of the need for this value in some functions that are threaded
 
-                //filesFolders
+                SettingsLoad(); //Call before anything else runs.
+                
                 ListFiles(null);
             }
             catch (Exception ex)
             {
                 logException(ex);
             }  
+        }
+
+        private void SettingsLoad()
+        {
+            try
+            {
+                applicationName = AppName();  //This is because of the need for this value in some functions that are threaded
+
+                if (IsWin10() == true)
+                {
+                    //Win10 now supports Flac and MKV media types
+                    if (acceptableMediaTypes.Contains("*.flac,") == false)
+                    {
+                        acceptableMediaTypes += "*.flac,";
+                    }
+
+                    if (acceptableMediaTypes.Contains("*.mkv,") == false)
+                    {
+                        acceptableMediaTypes += "*.mkv,";
+                    }
+                }
+
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public void RowSelected()
@@ -47,11 +79,14 @@ namespace Lounge
                 switch (ffd.Type)
                 {
                     case FileFolderData.FileFolderType.Folder:
+                        breadcrumbs.Add(ffd.Folder); //This is used when the user selects "Back"
                         ListFiles(ffd.Folder);
                         break;
 
                     case FileFolderData.FileFolderType.File:
-                        //TODO
+                        
+                        ffd.Selected = !ffd.Selected;
+                        //TODO: Add/remove from media lists
                         break;
                 }
             }
@@ -72,6 +107,8 @@ namespace Lounge
 
                 if (directory == null)
                 {
+                    breadcrumbs.Clear();
+
                     DriveInfo drv;    
                     string sTemp;
                     
@@ -123,14 +160,17 @@ namespace Lounge
 
                     foreach(FileInfo file in files)
                     {
-                        //TODO: check if acceptable file type
-                        ffd = new FileFolderData();
-                        ffd.Type = FileFolderData.FileFolderType.File;
-                        ffd.Date = File.GetCreationTime(file.FullName);
-                        ffd.Name = file.Name;
-                        ffd.File = file;
+                        //Check if acceptable file type
+                        if (file.Extension.IndexOf(acceptableMediaTypes) > -1)
+                        {
+                            ffd = new FileFolderData();
+                            ffd.Type = FileFolderData.FileFolderType.File;
+                            ffd.Date = File.GetCreationTime(file.FullName);
+                            ffd.Name = file.Name;
+                            ffd.File = file;
 
-                        filesFolders.Add(ffd);
+                            filesFolders.Add(ffd);
+                        }
                     }
                 }
 
@@ -156,6 +196,27 @@ namespace Lounge
             }
 
             return result;
+        }
+
+        private bool IsWin10()
+        {
+            bool bReturn = false;
+
+            try
+            {
+                System.OperatingSystem osInfo = System.Environment.OSVersion;
+
+                if (osInfo.Version.Major > 9)
+                {
+                    bReturn = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+
+            return bReturn;
         }
 
         private string AppName()

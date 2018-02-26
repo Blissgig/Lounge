@@ -11,15 +11,13 @@
         ResizeMode="NoResize" 
         ShowInTaskbar="False">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+        <Canvas Name="Medias"
+                Margin="0"                 
+                Background="Black"/>
 
-        </Grid.ColumnDefinitions>
-
-        <MediaElement Grid.Column="0" Source="" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
-        <MediaElement Grid.Column="1" Source="" Volume="0" Stretch="UniformToFill" LoadedBehavior="Play"/>
+        <Canvas Name="Visualizations" 
+                Opacity="0" 
+                Margin="0" 
+                 />
     </Grid>
-
-    
 </Window>
