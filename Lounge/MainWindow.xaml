@@ -44,7 +44,21 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <Grid Name="settings" Grid.Row="1" Grid.Column="1" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" />
+            <CheckBox x:Name="primaryMonitor" Grid.Row="1" Content="Primary Monitor" IsChecked="True" />
+            <CheckBox x:Name="LEDs" Content="Ardunio LEDs" Grid.Row="2" Grid.Column="1" IsChecked="True" />
+            <ListBox x:Name="LEDPatterns" HorizontalAlignment="Left" Height="67" Grid.Row="3" VerticalAlignment="Top" />
+            <ListBox x:Name="visualixations" HorizontalAlignment="Left" Height="67" Grid.Row="4" VerticalAlignment="Top" />
 
-
+        </Grid>
+        
     </Grid>
 </Window>
