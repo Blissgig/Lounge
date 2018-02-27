@@ -26,6 +26,7 @@ namespace Lounge
 
         ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
 
+        private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
 
         private Analyzer loungeAnalyzer;
@@ -39,8 +40,6 @@ namespace Lounge
 
                 SettingsLoad(); //Call before anything else runs.
                 
-                loungeAnalyzer = new Analyzer(window);
-
                 ListFiles(null);
             }
             catch (Exception ex)
@@ -59,6 +58,8 @@ namespace Lounge
                 string sBassNetRegistration = "";
                 BassNet.Registration(sBassNetEmail, sBassNetRegistration); //for audio visualization //TODO
 
+                loungeAnalyzer = new Analyzer(this);
+
                 if (IsWin10() == true)
                 {
                     //Win10 now supports Flac and MKV media types
@@ -73,6 +74,18 @@ namespace Lounge
                     }
                 }
 
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void MediaPlay()
+        {
+            try
+            {
 
             }
             catch (Exception ex)
@@ -293,11 +306,43 @@ namespace Lounge
             }
         }
 
+        public void SetVisualization(List<byte> visualData)
+        {
+            try
+            {
+                foreach(LoungeMediaFrame lmf in mediaFrames)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void SetupVisualization()
+        {
+            try
+            {
+                foreach (LoungeMediaFrame lmf in mediaFrames)
+                {
+                    lmf.Visualizations.Children.Clear();
+
+                    //TODO: Based on current visualization, setup the vis canvas.
+
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void logException(Exception ex)
         {
             try
             {
-                //TODO: option to log exceptions, on by default
                 var st = new StackTrace(ex, true);
 
                 for (int iFrame = 0; iFrame < st.FrameCount; iFrame++)
@@ -357,25 +402,26 @@ namespace Lounge
         private WASAPIPROC _process;        //callback function to obtain data
         private int _lastlevel;             //last output level
         private int _hanctr;                //last output level counter
-        public List<byte> BediaSpectrumData = new List<byte>();   //spectrum data buffer
+        public List<byte> visualizationData = new List<byte>();   //spectrum data buffer
         private List<AudioDeviceInfo> AudioDevices = new List<AudioDeviceInfo>();     //NEW non-UI device list
         private bool _initialized;          //initialized flag
         private int devindex;               //used device index
         private MainWindow mainWindow = null;
         private int _lines = 64;            // number of spectrum lines
+        private LoungeEngine loungeEngine;
 
-
-        public Analyzer(MainWindow Window)
+        public Analyzer(LoungeEngine loungeEngine)
         {  
             try
             {
-                mainWindow = Window;
+                //mainWindow = Window;
+                this.loungeEngine = loungeEngine;
 
                 _fft = new float[8192];
                 _lastlevel = 0;
                 _hanctr = 0;
                 _t = new DispatcherTimer();
-                _t.Tick += _t_Tick;
+                _t.Tick += Tick;
                 _t.Interval = TimeSpan.FromMilliseconds(mbTimerTime); 
                 _process = new WASAPIPROC(Process);
                 _initialized = false;
@@ -422,7 +468,6 @@ namespace Lounge
             }
         }
 
-        // initialization
         private void Init()
         {
             bool result = false;
@@ -455,7 +500,7 @@ namespace Lounge
         }
 
         //timer 
-        private void _t_Tick(object sender, EventArgs e)
+        private void Tick(object sender, EventArgs e)
         {
             try
             {
@@ -485,14 +530,13 @@ namespace Lounge
                     {
                         y = 0;
                     }
-                    BediaSpectrumData.Add((byte)y);
+                    visualizationData.Add((byte)y);
                 }
 
-                //TODO: SET VISUALIZATION HERE
-               // mainWindow.SetVisualisation(BediaSpectrumData);
+                //Send visualization data back to engine to render on all windows
+                loungeEngine.SetVisualization(visualizationData);
 
-
-                BediaSpectrumData.Clear();
+                visualizationData.Clear();
 
                 int level = BassWasapi.BASS_WASAPI_GetLevel();
                 if (level == _lastlevel && level != 0) _hanctr++;

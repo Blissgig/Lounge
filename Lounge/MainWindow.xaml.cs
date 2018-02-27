@@ -38,6 +38,11 @@ namespace Lounge
         {
             loungeEngine.RowSelected();
         }
+
+        private void play_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.MediaPlay();
+        }
     }
 
     
