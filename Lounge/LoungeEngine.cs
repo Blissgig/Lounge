@@ -22,8 +22,10 @@ namespace Lounge
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
 
         private string applicationName = "Lounge";
-        private string acceptableMediaTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,*.mp3,*.wma,*.wav,*.m4a,*.png,*.jpg,*.jpeg";
-
+        private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
+        private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
+        private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
+        
         ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
 
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
@@ -63,14 +65,14 @@ namespace Lounge
                 if (IsWin10() == true)
                 {
                     //Win10 now supports Flac and MKV media types
-                    if (acceptableMediaTypes.Contains("*.flac,") == false)
+                    if (acceptableMediaAudioTypes.Contains("*.flac,") == false)
                     {
-                        acceptableMediaTypes += "*.flac,";
+                        acceptableMediaAudioTypes += "*.flac,";
                     }
 
-                    if (acceptableMediaTypes.Contains("*.mkv,") == false)
+                    if (acceptableMediaVideoTypes.Contains("*.mkv,") == false)
                     {
-                        acceptableMediaTypes += "*.mkv,";
+                        acceptableMediaVideoTypes += "*.mkv,";
                     }
                 }
 
@@ -100,23 +102,63 @@ namespace Lounge
             {
                 FileFolderData ffd = (FileFolderData)mainWindow.FoldersFiles.SelectedItem;
 
-                switch (ffd.Type)
+                if (ffd != null)
                 {
-                    case FileFolderData.FileFolderType.Folder:
-                        breadcrumbs.Add(ffd.Folder); //This is used when the user selects "Back"
-                        ListFiles(ffd.Folder);
-                        break;
+                    switch (ffd.Type)
+                    {
+                        case FileFolderData.FileFolderType.Folder:
+                            breadcrumbs.Add(ffd.Folder); //This is used when the user selects "Back"
+                            ListFiles(ffd.Folder);
+                            break;
 
-                    case FileFolderData.FileFolderType.File:
-                        
-                        ffd.Selected = !ffd.Selected;
-                        //TODO: Add/remove from media lists
-                        break;
+                        case FileFolderData.FileFolderType.File:
+
+                            ffd.Selected = !ffd.Selected;
+
+                            //Add/Remove from media lists
+                            if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
+                            {
+                                AddRemoveMedia(AudioFiles, ffd);
+                            }
+                            else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
+                            {
+                                AddRemoveMedia(PhotoFiles, ffd);
+                            }
+                            else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
+                            {
+                                AddRemoveMedia(VideoFiles, ffd);
+                            }
+                            break;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 logException(ex);
+            }
+        }
+
+        public void AddRemoveMedia(List<FileInfo> files, FileFolderData ffd)
+        {
+            try
+            {
+                if (ffd.Selected)
+                {
+                    files.Add(ffd.File);
+                }
+                else
+                {
+                    FileInfo fileFound = files.Find(x => x.FullName == ffd.File.FullName);
+
+                    if (fileFound != null)
+                    {
+                        files.Remove(fileFound);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -167,7 +209,7 @@ namespace Lounge
                 {
                     DirectoryInfo[] folders = directory.GetDirectories();
                     FileInfo[] files = directory.GetFiles();
-
+                    string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes;
                     foreach (DirectoryInfo folder in folders)
                     {
                         if (!IsSpecialFolder(folder))
@@ -185,14 +227,13 @@ namespace Lounge
                     foreach(FileInfo file in files)
                     {
                         //Check if acceptable file type
-                        if (file.Extension.IndexOf(acceptableMediaTypes) > -1)
+                        if (acceptableMediaTypes.IndexOf(file.Extension) > -1)
                         {
                             ffd = new FileFolderData();
                             ffd.Type = FileFolderData.FileFolderType.File;
                             ffd.Date = File.GetCreationTime(file.FullName);
                             ffd.Name = file.Name;
                             ffd.File = file;
-
                             filesFolders.Add(ffd);
                         }
                     }

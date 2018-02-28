@@ -20,7 +20,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -28,6 +28,24 @@
             Name="AudioElement" 
             Opacity="0" />
 
+        <Grid 
+            Name="Navigation"
+            Grid.Row="0" 
+            Grid.Column="0"
+            >
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button 
+                x:Name="back" 
+                Content="Back" 
+                Grid.Row="5" Height="30" Click="play_Click" />
+        </Grid>
+        
+        
         <DataGrid 
             Name="FoldersFiles"
             Grid.Row="1" 
