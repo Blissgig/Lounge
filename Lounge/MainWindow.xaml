@@ -10,7 +10,7 @@
         Width="525" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
-        Loaded="Window_Loaded"
+        Loaded="Window_Loaded" Icon="app.ico" Closing="Window_Closing"
         >
 
     <Grid>
@@ -42,7 +42,7 @@
             <Button 
                 x:Name="back" 
                 Content="Back" 
-                Grid.Row="5" Height="30" Click="play_Click" />
+                Grid.Row="5" Height="30" Click="back_Click" />
         </Grid>
         
         

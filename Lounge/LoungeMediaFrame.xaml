@@ -9,6 +9,7 @@
         Height="300" 
         Width="300" 
         ResizeMode="NoResize" 
+        WindowStyle="None"
         ShowInTaskbar="False">
     <Grid>
         <Canvas Name="Medias"

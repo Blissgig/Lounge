@@ -16,7 +16,7 @@ namespace Lounge
     class LoungeEngine
     {
         #region Private Members
-        private MainWindow mainWindow;
+        public MainWindow mainWindow;
         private List<FileInfo> AudioFiles = new List<FileInfo>();
         private List<FileInfo> VideoFiles = new List<FileInfo>();
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
@@ -26,12 +26,12 @@ namespace Lounge
         private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
         private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
         
-        ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
-
+        private ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
 
         private Analyzer loungeAnalyzer;
+        private Random loungeRandom = new Random(DateTime.Now.Millisecond);
         #endregion
 
         public LoungeEngine(MainWindow window)
@@ -88,7 +88,23 @@ namespace Lounge
         {
             try
             {
+                if ((AudioFiles.Count() == 0) && (VideoFiles.Count() == 0) && (PhotoFiles.Count() == 0))
+                {
+                    MessageBox.Show("You have to add SOME media to play", "No media selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    mainWindow.WindowState = System.Windows.WindowState.Minimized;
 
+                    LoadWindows();
+
+                    //TODO: load music
+
+                    foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                    {
+                        LoadScene(mediaFrame);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -138,6 +154,22 @@ namespace Lounge
             }
         }
 
+        public void Back()
+        {
+            if (breadcrumbs.Count > 0)
+            {
+                breadcrumbs.RemoveAt(breadcrumbs.Count - 1);
+
+                DirectoryInfo directory = null;
+                if (breadcrumbs.Count > 0)
+                {
+                    directory = breadcrumbs[breadcrumbs.Count - 1];
+                }
+                
+                ListFiles(directory);
+            }
+        }
+
         public void AddRemoveMedia(List<FileInfo> files, FileFolderData ffd)
         {
             try
@@ -166,6 +198,8 @@ namespace Lounge
         {
             try
             {
+                Cursor.Current = Cursors.WaitCursor;
+
                 //In case no starting directory, assume a list of drives
                 filesFolders.Clear();
 
@@ -212,7 +246,7 @@ namespace Lounge
                     string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes;
                     foreach (DirectoryInfo folder in folders)
                     {
-                        if (!IsSpecialFolder(folder))
+                        if (IsFolderValid(folder))
                         {
                             ffd = new FileFolderData();
                             ffd.Type = FileFolderData.FileFolderType.Folder;
@@ -245,22 +279,90 @@ namespace Lounge
             {
                 throw;
             }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
         }
 
-        private bool IsSpecialFolder(DirectoryInfo folder)
+        private bool IsPortrait(LoungeMediaFrame mediaFrame)
         {
             bool result = false;
-
-            foreach (Environment.SpecialFolder suit in Enum.GetValues(typeof(Environment.SpecialFolder)))
+ 
+            if (mediaFrame.ActualWidth < mediaFrame.ActualHeight)
             {
-                if (folder.FullName == Environment.GetFolderPath(suit))
-                {
-                    result = true;
-                    break;
-                }
+                result = true;
             }
 
             return result;
+        }
+
+        private bool IsFolderValid(DirectoryInfo folder)
+        {
+            bool bResult = false;
+            
+
+            if ((folder.Attributes & FileAttributes.System) == (FileAttributes.System))
+            {
+                bResult = false;
+            }
+            else
+            {
+                //Check if there is media in the folder or sub folder, otherwise no need to show it.
+                DirectoryInfo[] folders = folder.GetDirectories();
+                bool bFolders = false;
+
+                if (folders.Count() > 0)
+                {
+                    bFolders = true;
+                }
+
+                //No need to check for files, if there are folders
+                FileInfo[] Files = folder.GetFiles();
+
+                foreach (FileInfo file in Files)
+                {
+                    if (acceptableMediaAudioTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    {
+                        bResult = true;
+                    }
+
+                    if (acceptableMediaPhotoTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    {
+                        bResult = true;
+                    }
+
+                    if (acceptableMediaVideoTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    {
+                        bResult = true;
+                    }
+
+                    if (bResult == true)
+                    {
+                        break;
+                    }
+                }
+
+                Files = null;
+
+                //This recursion, on a very deep folder took < 500 milliseconds
+                //It recurses all subfolders to see if there is an acceptable file somewhere within this folder.
+                if (bResult == false && bFolders == true)
+                {
+                    foreach (DirectoryInfo subFolder in folders)
+                    {
+                        if (IsFolderValid(subFolder) == true)
+                        {
+                            bResult = true;
+                            break;
+                        }
+                    }
+                }
+
+                folders = null;
+            }
+            
+            return bResult;
         }
 
         private bool IsWin10()
@@ -307,25 +409,50 @@ namespace Lounge
             return sAppName;
         }
 
+        private void LoadScene(LoungeMediaFrame mediaFrame)
+        {
+            try
+            {
+                byte bPlayerCount = 1;
+
+                if (IsPortrait(mediaFrame))
+                {
+                    bPlayerCount = 3; //atm; potrait windows have 3 players, though if an image 1 player would be nice
+                }
+                else
+                {
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         private void LoadWindows()
         {
             try
             {
                 System.Drawing.Rectangle workingArea;
-                bool bMonitor;
+                bool bMonitor = true;
 
                 foreach (Screen scr in Screen.AllScreens)
                 {
                     workingArea = scr.WorkingArea;
-
-                    bMonitor = true;
-
-                    //The primary monitor is only false if the checkbox is NOT selected
-                    if (scr.Primary == true)
-                    {
-                        bMonitor = true; // TEMP TODO: Convert.ToBoolean(this.chkPrimaryMonitor.IsChecked);
-                    }
                     
+                    //The primary monitor is only false if the checkbox is NOT selected
+                    if (scr.Primary == true && (bool)mainWindow.primaryMonitor.IsChecked == false)
+                    {
+                        bMonitor = false;
+                    }
+                    else
+                    {
+                        bMonitor = true;
+                    }
+
                     if (bMonitor == true)
                     {
                         LoungeMediaFrame loungeMediaFrame = new LoungeMediaFrame();
@@ -336,8 +463,9 @@ namespace Lounge
                         loungeMediaFrame.Top = workingArea.Top;
                         loungeMediaFrame.Width = workingArea.Width;
                         loungeMediaFrame.Height = workingArea.Height;
-
+                        
                         loungeMediaFrame.Show();
+                        mediaFrames.Add(loungeMediaFrame);
                     }
                 }
             }
@@ -345,6 +473,21 @@ namespace Lounge
             {
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                foreach(LoungeMediaFrame mediaFrame in mediaFrames)
+                {
+                    mediaFrame.Close();
+                }
+
+                mediaFrames.Clear();
+            }
+            catch 
+            { }
         }
 
         public void SetVisualization(List<byte> visualData)
@@ -520,18 +663,18 @@ namespace Lounge
                 if (device.IsEnabled && device.IsLoopback)
                 {
                     AudioDeviceInfo audioDeviceInfo = new AudioDeviceInfo();
-                    audioDeviceInfo.DeviceID = i; //device.id  //TODO SHOULDN'T THIS BE THE RIGHT VALUE... AND YET IT WORKS
+                    audioDeviceInfo.DeviceID = i; 
                     audioDeviceInfo.Name = device.name;
                     AudioDevices.Add(audioDeviceInfo);
 
-                    mainWindow.audioDevices.Items.Add(device.name);
+                    loungeEngine.mainWindow.audioDevices.Items.Add(device.name);
 
                     //TO SET THE SPEAKER OUTPUT
                     //TODO: save setting and get it here
-                    if (device.name.ToLower().IndexOf("speaker") > -1)
-                    {
-                        mainWindow.audioDevices.SelectedIndex = (mainWindow.audioDevices.Items.Count - 1);
-                    }
+                    //if (device.name.ToLower().IndexOf("speaker") > -1)
+                    //{
+                    //    mainWindow.audioDevices.SelectedIndex = (mainWindow.audioDevices.Items.Count - 1);
+                    //}
                 }
             }
             
@@ -610,8 +753,12 @@ namespace Lounge
         //cleanup
         public void Free()
         {
-            BassWasapi.BASS_WASAPI_Free();
-            Bass.BASS_Free();
+            try
+            {
+                BassWasapi.BASS_WASAPI_Free();
+                Bass.BASS_Free();
+            }
+            catch { }
         }
     }
 
