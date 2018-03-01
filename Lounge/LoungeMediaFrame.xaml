@@ -6,15 +6,13 @@
         xmlns:local="clr-namespace:Lounge"
         mc:Ignorable="d"
         Title="LoungeMediaFrame" 
-        Height="300" 
-        Width="300" 
         ResizeMode="NoResize" 
         WindowStyle="None"
         ShowInTaskbar="False">
-    <Grid>
+    <Grid Background="Black">
         <Canvas Name="Medias"
                 Margin="0"                 
-                Background="Black"/>
+                />
 
         <Canvas Name="Visualizations" 
                 Opacity="0" 

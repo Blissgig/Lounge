@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 using System.Windows.Threading;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Lounge
 {
@@ -100,12 +102,12 @@ namespace Lounge
 
                     AudioNext();
 
-                    //LoadWindows();
+                    LoadWindows();
                     
-                    //foreach (LoungeMediaFrame mediaFrame in mediaFrames)
-                    //{
-                    //    LoadScene(mediaFrame);
-                    //}
+                    foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                    {
+                        LoadScene(mediaFrame);
+                    }
                 }
             }
             catch (Exception ex)
@@ -147,6 +149,37 @@ namespace Lounge
                                 AddRemoveMedia(VideoFiles, ffd);
                             }
                             break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void SelectAll()
+        {
+            try
+            {
+                foreach(FileFolderData ffd in filesFolders)
+                {
+                    if (ffd.Type == FileFolderData.FileFolderType.File)
+                    {
+                        ffd.Selected = true;
+
+                        if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
+                        {
+                            AddRemoveMedia(AudioFiles, ffd);
+                        }
+                        else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
+                        {
+                            AddRemoveMedia(PhotoFiles, ffd);
+                        }
+                        else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
+                        {
+                            AddRemoveMedia(VideoFiles, ffd);
+                        }
                     }
                 }
             }
@@ -460,17 +493,57 @@ namespace Lounge
             try
             {
                 byte bPlayerCount = 1;
+                double dHeight = 400;
+                double dWidth = 400;
+                double dTop = 0;
+                double bLeft = 0;
+                byte bReset = 0;
 
                 if (IsPortrait(mediaFrame))
                 {
                     bPlayerCount = 3; //atm; potrait windows have 3 players, though if an image 1 player would be nice
+                    dHeight = (mediaFrame.ActualHeight / 3);
+                    dWidth = mediaFrame.ActualWidth;
+                    bReset = 3;
                 }
                 else
                 {
-
+                    bPlayerCount = 4;
+                    dHeight = (mediaFrame.ActualHeight / 2);
+                    dWidth = (mediaFrame.ActualWidth / 2);
+                    bReset = 2;
                 }
 
+                for (byte bPlayer = 0; bPlayer < bPlayerCount; bPlayer++)
+                {
+                    LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
+                    int i = loungeRandom.Next(0, VideoFiles.Count);
+                    FileInfo media = VideoFiles[i];
 
+                    
+                    mediaPlayer.Width = dWidth;
+                    mediaPlayer.Height = dHeight;
+                    mediaPlayer.LoungeMediaElement.Height = dHeight;
+                    mediaPlayer.LoungeMediaElement.Width = dWidth;
+
+                    mediaPlayer.LoungeMediaElement.StretchDirection = StretchDirection.Both;
+                    mediaPlayer.LoungeMediaElement.Stretch = Stretch.Fill;
+
+                    mediaFrame.Medias.Children.Add(mediaPlayer);
+                    Canvas.SetTop(mediaPlayer, dTop);
+                    Canvas.SetLeft(mediaPlayer, bLeft);
+
+                    mediaPlayer.LoungeMediaElement.Source = new Uri(media.FullName);
+                    mediaPlayer.LoungeMediaElement.Play();
+
+                    dTop += dHeight;
+
+                    if ((bPlayer + 1) == bReset)
+                    {
+                        dTop = 0;
+                        bLeft += dWidth;
+                    }
+                }
             }
             catch (Exception ex)
             {

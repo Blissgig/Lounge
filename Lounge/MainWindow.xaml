@@ -37,17 +37,29 @@
             Name="Navigation"
             Grid.Row="0" 
             Grid.Column="0"
+            Margin="4"
             >
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Button 
                 x:Name="back" 
                 Content="Back" 
-                Grid.Row="5" Height="30" Click="back_Click" />
+                Grid.Column="0" 
+                HorizontalAlignment="Stretch" 
+                Click="back_Click" />
+            
+            <Button 
+                x:Name="selectAll"
+                Content="Select All" 
+                Grid.Column="1" 
+                HorizontalAlignment="Stretch"
+                Click="selectAll_Click"
+                />
         </Grid>
         
         
@@ -86,7 +98,7 @@
             <CheckBox x:Name="LEDs" Grid.Row="2" Content="Ardunio LEDs" IsChecked="True" />
             <CheckBox x:Name="loopAudio" Grid.Row="3" Content="Loop Audio" IsChecked="True" />
             <ListBox x:Name="LEDPatterns" Grid.Row="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <ListBox x:Name="visualixations" Grid.Row="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <ListBox x:Name="visualizations" Grid.Row="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
 
             <Slider x:Name="AudioVolume" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />

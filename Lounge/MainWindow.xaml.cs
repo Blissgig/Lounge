@@ -41,6 +41,11 @@ namespace Lounge
         {
             loungeEngine.AudioNext();
         }
+        
+        private void selectAll_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.SelectAll();
+        }
 
         private void AudioNext_Click(object sender, RoutedEventArgs e)
         {
@@ -65,6 +70,6 @@ namespace Lounge
             loungeEngine.Dispose();
             loungeEngine = null;
         }
-        
+
     }
 }

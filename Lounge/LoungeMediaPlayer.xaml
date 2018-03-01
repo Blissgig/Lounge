@@ -5,9 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Lounge"
              mc:Ignorable="d" 
-             d:DesignHeight="297.665" 
-             d:DesignWidth="388.132">
+             d:DesignHeight="400" 
+             d:DesignWidth="400">
     <Canvas>
-        <MediaElement Name="LoungeMediaElement" Stretch="UniformToFill" Source="Z:\Music Vidx\Rock Your World.wmv"/>
+        <MediaElement Name="LoungeMediaElement" 
+                      Stretch="Fill" 
+                      StretchDirection="Both"
+                      LoadedBehavior="Manual"
+                      Volume="0"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      />
     </Canvas>
 </UserControl>
