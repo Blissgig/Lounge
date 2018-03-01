@@ -36,11 +36,35 @@ namespace Lounge
         {
             loungeEngine.Back();
         }
+        
+        private void Media_Ended(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.AudioNext();
+        }
+
+        private void AudioNext_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.AudioNext();
+        }
+        
+        private void AudioPrior_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.AudioPrior();
+        }
+
+        private void AudioVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (loungeEngine != null)
+            {
+                loungeEngine.AudioVolume();
+            }
+        }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             loungeEngine.Dispose();
             loungeEngine = null;
         }
+        
     }
 }

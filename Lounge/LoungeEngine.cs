@@ -21,6 +21,8 @@ namespace Lounge
         private List<FileInfo> VideoFiles = new List<FileInfo>();
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
 
+        private int currentAudio = 0; //See "AudioNext"
+
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
         private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
@@ -96,14 +98,14 @@ namespace Lounge
                 {
                     mainWindow.WindowState = System.Windows.WindowState.Minimized;
 
-                    LoadWindows();
+                    AudioNext();
 
-                    //TODO: load music
-
-                    foreach (LoungeMediaFrame mediaFrame in mediaFrames)
-                    {
-                        LoadScene(mediaFrame);
-                    }
+                    //LoadWindows();
+                    
+                    //foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                    //{
+                    //    LoadScene(mediaFrame);
+                    //}
                 }
             }
             catch (Exception ex)
@@ -192,6 +194,50 @@ namespace Lounge
             {
                 throw;
             }
+        }
+
+        public void AudioNext()
+        {
+            try
+            {
+                //To insure that this function is only called while in a loop or available media
+                if (currentAudio < AudioFiles.Count())
+                {
+                    FileInfo file = AudioFiles[currentAudio];
+
+                    mainWindow.AudioElement.Source = new Uri(file.FullName);
+                    mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
+                    mainWindow.AudioElement.Play();
+                    
+
+                    currentAudio++;
+
+                    if (currentAudio >= AudioFiles.Count() && mainWindow.loopAudio.IsChecked == true)
+                    {
+                        currentAudio = 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void AudioPrior()
+        {
+            currentAudio--;
+            if (currentAudio < 0)
+            {
+                currentAudio = 0;
+            }
+
+            AudioNext();
+        }
+
+        public void AudioVolume()
+        {
+            mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
         }
 
         public void ListFiles(DirectoryInfo directory)

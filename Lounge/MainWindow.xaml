@@ -10,7 +10,9 @@
         Width="525" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
-        Loaded="Window_Loaded" Icon="app.ico" Closing="Window_Closing"
+        Loaded="Window_Loaded" 
+        Closing="Window_Closing"
+        Icon="app.ico" 
         >
 
     <Grid>
@@ -26,7 +28,10 @@
 
         <MediaElement 
             Name="AudioElement" 
-            Opacity="0" />
+            LoadedBehavior="Manual"
+            Opacity="0" 
+            MediaEnded="Media_Ended"
+            MediaFailed="Media_Ended"/>
 
         <Grid 
             Name="Navigation"
@@ -64,19 +69,33 @@
 
         <Grid Name="settings" Grid.Row="1" Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="20" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="30" />
-                <RowDefinition Height="20" />
-                <RowDefinition Height="20" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="24" />
+                <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
-            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" />
+            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             <CheckBox x:Name="primaryMonitor" Grid.Row="1" Content="Primary Monitor" IsChecked="True" />
-            <CheckBox x:Name="LEDs" Content="Ardunio LEDs" Grid.Row="2" Grid.Column="1" IsChecked="True" />
-            <ListBox x:Name="LEDPatterns" HorizontalAlignment="Left" Height="67" Grid.Row="3" VerticalAlignment="Top" />
-            <ListBox x:Name="visualixations" HorizontalAlignment="Left" Height="67" Grid.Row="4" VerticalAlignment="Top" />
-            <Button x:Name="play" Content="Play" Grid.Row="5" Height="30" Click="play_Click" />
+            <CheckBox x:Name="LEDs" Grid.Row="2" Content="Ardunio LEDs" IsChecked="True" />
+            <CheckBox x:Name="loopAudio" Grid.Row="3" Content="Loop Audio" IsChecked="True" />
+            <ListBox x:Name="LEDPatterns" Grid.Row="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ListBox x:Name="visualixations" Grid.Row="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+
+            <Slider x:Name="AudioVolume" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
+            <Label x:Name="Audio"  Grid.Row="8" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Button x:Name="AudioNext" Grid.Row="8" Content="Next" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="80" Click="AudioNext_Click" />
+            <Button x:Name="AudioPrior" Grid.Row="8" Content="Prior" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="80" Click="AudioPrior_Click" />
+
+            <Button x:Name="play" Grid.Row="10" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" />
+            
         </Grid>
         
     </Grid>
