@@ -12,6 +12,8 @@ using Un4seen.BassWasapi;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows;
 
 namespace Lounge
 {
@@ -24,6 +26,8 @@ namespace Lounge
         private List<FileInfo> PhotoFiles = new List<FileInfo>();
 
         private int currentAudio = 0; //See "AudioNext"
+        private int minimumSceneTime = 10;  //Seconds
+        private int maximumSceneTime = 20;
 
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
@@ -94,7 +98,7 @@ namespace Lounge
             {
                 if ((AudioFiles.Count() == 0) && (VideoFiles.Count() == 0) && (PhotoFiles.Count() == 0))
                 {
-                    MessageBox.Show("You have to add SOME media to play", "No media selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    System.Windows.Forms.MessageBox.Show("You have to add SOME media to play", "No media selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -496,8 +500,16 @@ namespace Lounge
                 double dHeight = 400;
                 double dWidth = 400;
                 double dTop = 0;
-                double bLeft = 0;
+                double dLeft = 0;
                 byte bReset = 0;
+                int iSceneLength = 60;
+                byte bLoadSeconds = 5;
+                Storyboard storyboard = new Storyboard();
+
+
+                mediaFrame.Medias.Children.Clear();
+
+                NameScope.SetNameScope(mainWindow, new NameScope());
 
                 if (IsPortrait(mediaFrame))
                 {
@@ -514,13 +526,17 @@ namespace Lounge
                     bReset = 2;
                 }
 
+                double dLeft2 = 2800;
+
                 for (byte bPlayer = 0; bPlayer < bPlayerCount; bPlayer++)
                 {
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
                     int i = loungeRandom.Next(0, VideoFiles.Count);
                     FileInfo media = VideoFiles[i];
 
-                    
+                    iSceneLength = loungeRandom.Next(minimumSceneTime, maximumSceneTime);
+                    dLeft = 0; // -500; // -(mediaFrame.ActualWidth * (bPlayer + 1)); 
+
                     mediaPlayer.Width = dWidth;
                     mediaPlayer.Height = dHeight;
                     mediaPlayer.LoungeMediaElement.Height = dHeight;
@@ -531,24 +547,93 @@ namespace Lounge
 
                     mediaFrame.Medias.Children.Add(mediaPlayer);
                     Canvas.SetTop(mediaPlayer, dTop);
-                    Canvas.SetLeft(mediaPlayer, bLeft);
+                    //Canvas.SetLeft(mediaPlayer, dLeft); //works, sorta
+                    //Canvas.SetLeft(mediaPlayer, 500);
+                    Canvas.SetLeft(mediaPlayer, 100);
 
                     mediaPlayer.LoungeMediaElement.Source = new Uri(media.FullName);
                     mediaPlayer.LoungeMediaElement.Play();
+                    mediaPlayer.LoungeMediaElement.MediaOpened += LoungeMediaElement_MediaOpened;
+
+
+                    // -- MOVE --
+                    TranslateTransform translateTransform = new TranslateTransform();
+                    mediaPlayer.RenderTransform = translateTransform;
+                    mainWindow.RegisterName("translateTransform" + bPlayer.ToString(), translateTransform);
+
+                    DoubleAnimationUsingKeyFrames moveAnimation = new DoubleAnimationUsingKeyFrames();
+                    moveAnimation.Duration = TimeSpan.FromSeconds(10);
+
+                    
+                    moveAnimation.KeyFrames.Add(
+                        new LinearDoubleKeyFrame(100, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(5)))
+                        );
+
+                    moveAnimation.KeyFrames.Add(
+                        new LinearDoubleKeyFrame(500, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(5)))
+                    );
+
+
+                    //moveAnimation.KeyFrames.Add(
+                    //    new LinearDoubleKeyFrame(0,
+                    //        KeyTime.FromTimeSpan(TimeSpan.FromSeconds(bLoadSeconds)))
+                    //    );
+
+                    Storyboard.SetTargetName(moveAnimation, "translateTransform" + bPlayer.ToString());
+                    Storyboard.SetTargetProperty(moveAnimation, new PropertyPath(TranslateTransform.XProperty));
+                    storyboard.Children.Add(moveAnimation);
+
+
+                    //This is so the media starts at a random point
+                    //he value of iJump needs to have a max of less than the Scene time frame
+                    int iJump = 20; // loungeRandom.Next(0,  Convert.ToInt32(mediaPlayer.LoungeMediaElement.Position.TotalSeconds - iSceneLength));
+                    
+                    mediaPlayer.LoungeMediaElement.Position += new TimeSpan(0, 0, iJump);
 
                     dTop += dHeight;
+
 
                     if ((bPlayer + 1) == bReset)
                     {
                         dTop = 0;
-                        bLeft += dWidth;
+                        dLeft += dWidth;
                     }
                 }
+
+                storyboard.Completed += (sndr, evts) =>
+                {
+                    LoadScene(mediaFrame);
+                };
+                storyboard.Begin(mainWindow);
             }
             catch (Exception ex)
             {
                 logException(ex);
             }
+        }
+
+        private void LoungeMediaElement_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var mediaElement = (MediaElement)sender;
+                int iSceneLength = 60; //TEMP
+
+                int iJump = loungeRandom.Next(0,  Convert.ToInt32(mediaElement.Position.TotalSeconds - iSceneLength));
+
+                mediaElement.Position += new TimeSpan(0, 0, iJump);
+
+                //throw new NotImplementedException();
+            }
+            catch (Exception)
+            {
+                //throw;
+            }
+        }
+
+        public void MediaJump()
+        {
+
         }
 
         private void LoadWindows()

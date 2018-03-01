@@ -106,7 +106,7 @@
             <Button x:Name="AudioNext" Grid.Row="8" Content="Next" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="80" Click="AudioNext_Click" />
             <Button x:Name="AudioPrior" Grid.Row="8" Content="Prior" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="80" Click="AudioPrior_Click" />
 
-            <Button x:Name="play" Grid.Row="10" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" />
+            <Button x:Name="play" Grid.Row="10" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" IsDefault="True" />
             
         </Grid>
         
