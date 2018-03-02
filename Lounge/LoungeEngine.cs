@@ -496,115 +496,143 @@ namespace Lounge
         {
             try
             {
-                byte bPlayerCount = 1;
+                byte bPlayerCount = 0;
                 double dHeight = 400;
                 double dWidth = 400;
-                double dTop = 0;
-                double dLeft = 0;
-                byte bReset = 0;
-                int iSceneLength = 60;
-                byte bLoadSeconds = 5;
-                Storyboard storyboard = new Storyboard();
+                Point startPoint = new Point(0, 0);
+                Point endPoint = new Point(0, 0);
+                List<byte> playerCount = new List<byte>();
 
-
-                mediaFrame.Medias.Children.Clear();
-
-                NameScope.SetNameScope(mainWindow, new NameScope());
 
                 if (IsPortrait(mediaFrame))
                 {
-                    bPlayerCount = 3; //atm; potrait windows have 3 players, though if an image 1 player would be nice
-                    dHeight = (mediaFrame.ActualHeight / 3);
-                    dWidth = mediaFrame.ActualWidth;
-                    bReset = 3;
+                    //Portrait mode can have 2 or 3 media players
+                    //playerCount.Add(2);
+                    playerCount.Add(3);
                 }
                 else
                 {
-                    bPlayerCount = 4;
-                    dHeight = (mediaFrame.ActualHeight / 2);
-                    dWidth = (mediaFrame.ActualWidth / 2);
-                    bReset = 2;
+                    //playerCount.Add(1);
+                    playerCount.Add(4);
                 }
 
-                double dLeft2 = 2800;
+                bPlayerCount = playerCount[Convert.ToByte(loungeRandom.Next(0, playerCount.Count()))];
+
+                //Player Size
+                switch (bPlayerCount)
+                {
+                    case 1:
+                        dHeight = mediaFrame.ActualHeight;
+                        dWidth = mediaFrame.ActualWidth;
+                        break;
+
+                    case 2:
+                        dHeight = (mediaFrame.ActualHeight / 2);
+                        dWidth = mediaFrame.ActualWidth;
+                        break;
+
+                    case 3:
+                        dHeight = (mediaFrame.ActualHeight / 3);
+                        dWidth = mediaFrame.ActualWidth;
+                        break;
+
+                    case 4:
+                        dHeight = (mediaFrame.ActualHeight / 2);
+                        dWidth = (mediaFrame.ActualWidth / 2);
+                        break;
+                }
 
                 for (byte bPlayer = 0; bPlayer < bPlayerCount; bPlayer++)
                 {
+                    switch (bPlayerCount)
+                    {
+                        case 1:
+                            startPoint = new Point(-mediaFrame.ActualWidth, 0);
+                            endPoint = new Point(0, 0);
+                            break;
+
+                        case 2:
+                            switch (bPlayer)
+                            {
+                                case 0:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, 0);
+                                    endPoint = new Point(0, 0);
+                                    break;
+
+                                case 1:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, (mediaFrame.ActualHeight / 2));
+                                    endPoint = new Point(0, (mediaFrame.ActualHeight / 2));
+                                    break;
+                            }
+                            break;
+
+                        case 3:
+                            switch (bPlayer)
+                            {
+                                case 0:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, 0);
+                                    endPoint = new Point(0, 0);
+                                    break;
+
+                                case 1:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, (mediaFrame.ActualHeight / 3));
+                                    endPoint = new Point(0, (mediaFrame.ActualHeight / 3));
+                                    break;
+
+                                case 2:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, (mediaFrame.ActualHeight * .66));
+                                    endPoint = new Point(0, (mediaFrame.ActualHeight * .66));
+                                    break;
+                            }
+                            break;
+
+                        case 4:
+                            switch (bPlayer)
+                            {  
+                                case 0:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, 0);
+                                    endPoint = new Point(0, 0);
+                                    break;
+
+                                case 1:
+                                    startPoint = new Point(-mediaFrame.ActualWidth, (mediaFrame.ActualHeight / 2));
+                                    endPoint = new Point(0, (mediaFrame.ActualHeight / 2));
+                                    break;
+
+                                case 2:
+                                    startPoint = new Point((mediaFrame.ActualWidth * 2), 0);
+                                    endPoint = new Point((mediaFrame.ActualWidth / 2), 0);
+                                    break;
+
+                                case 3:
+                                    startPoint = new Point((mediaFrame.ActualWidth * 2), (mediaFrame.ActualWidth / 2));
+                                    endPoint = new Point((mediaFrame.ActualWidth / 2), (mediaFrame.ActualHeight / 2));
+                                    break;
+                            }
+                            break;
+                    }
+
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
+                    mediaPlayer.startPoint = startPoint;
+                    mediaPlayer.endPoint = endPoint;
+
                     int i = loungeRandom.Next(0, VideoFiles.Count);
                     FileInfo media = VideoFiles[i];
 
-                    iSceneLength = loungeRandom.Next(minimumSceneTime, maximumSceneTime);
-                    dLeft = 0; // -500; // -(mediaFrame.ActualWidth * (bPlayer + 1)); 
-
+                    
                     mediaPlayer.Width = dWidth;
                     mediaPlayer.Height = dHeight;
                     mediaPlayer.LoungeMediaElement.Height = dHeight;
                     mediaPlayer.LoungeMediaElement.Width = dWidth;
 
-                    mediaPlayer.LoungeMediaElement.StretchDirection = StretchDirection.Both;
-                    mediaPlayer.LoungeMediaElement.Stretch = Stretch.Fill;
-
                     mediaFrame.Medias.Children.Add(mediaPlayer);
-                    Canvas.SetTop(mediaPlayer, dTop);
-                    //Canvas.SetLeft(mediaPlayer, dLeft); //works, sorta
-                    //Canvas.SetLeft(mediaPlayer, 500);
-                    Canvas.SetLeft(mediaPlayer, 100);
+                    Canvas.SetTop(mediaPlayer, startPoint.Y);
+                    Canvas.SetLeft(mediaPlayer, startPoint.X);
 
                     mediaPlayer.LoungeMediaElement.Source = new Uri(media.FullName);
                     mediaPlayer.LoungeMediaElement.Play();
                     mediaPlayer.LoungeMediaElement.MediaOpened += LoungeMediaElement_MediaOpened;
-
-
-                    // -- MOVE --
-                    TranslateTransform translateTransform = new TranslateTransform();
-                    mediaPlayer.RenderTransform = translateTransform;
-                    mainWindow.RegisterName("translateTransform" + bPlayer.ToString(), translateTransform);
-
-                    DoubleAnimationUsingKeyFrames moveAnimation = new DoubleAnimationUsingKeyFrames();
-                    moveAnimation.Duration = TimeSpan.FromSeconds(10);
-
-                    
-                    moveAnimation.KeyFrames.Add(
-                        new LinearDoubleKeyFrame(100, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(5)))
-                        );
-
-                    moveAnimation.KeyFrames.Add(
-                        new LinearDoubleKeyFrame(500, KeyTime.FromTimeSpan(TimeSpan.FromSeconds(5)))
-                    );
-
-
-                    //moveAnimation.KeyFrames.Add(
-                    //    new LinearDoubleKeyFrame(0,
-                    //        KeyTime.FromTimeSpan(TimeSpan.FromSeconds(bLoadSeconds)))
-                    //    );
-
-                    Storyboard.SetTargetName(moveAnimation, "translateTransform" + bPlayer.ToString());
-                    Storyboard.SetTargetProperty(moveAnimation, new PropertyPath(TranslateTransform.XProperty));
-                    storyboard.Children.Add(moveAnimation);
-
-
-                    //This is so the media starts at a random point
-                    //he value of iJump needs to have a max of less than the Scene time frame
-                    int iJump = 20; // loungeRandom.Next(0,  Convert.ToInt32(mediaPlayer.LoungeMediaElement.Position.TotalSeconds - iSceneLength));
-                    
-                    mediaPlayer.LoungeMediaElement.Position += new TimeSpan(0, 0, iJump);
-
-                    dTop += dHeight;
-
-
-                    if ((bPlayer + 1) == bReset)
-                    {
-                        dTop = 0;
-                        dLeft += dWidth;
-                    }
                 }
-
-                storyboard.Completed += (sndr, evts) =>
-                {
-                    LoadScene(mediaFrame);
-                };
-                storyboard.Begin(mainWindow);
             }
             catch (Exception ex)
             {
@@ -616,24 +644,45 @@ namespace Lounge
         {
             try
             {
+                System.Threading.Thread.Sleep(100); //To insure that the media has time to load and play before moving the player into position
+
                 var mediaElement = (MediaElement)sender;
-                int iSceneLength = 60; //TEMP
+                var canvas = (Canvas)mediaElement.Parent;
+                var lmp = (LoungeMediaPlayer)canvas.Parent;
+                int iMilliseconds = loungeRandom.Next(2000, 4000); //So that the players don't move in at the same time
+                
 
-                int iJump = loungeRandom.Next(0,  Convert.ToInt32(mediaElement.Position.TotalSeconds - iSceneLength));
+                Storyboard storyboard = new Storyboard();
+                QuadraticEase ease = new QuadraticEase();
+                ease.EasingMode = EasingMode.EaseIn;
 
-                mediaElement.Position += new TimeSpan(0, 0, iJump);
+                DoubleAnimation animationTop = new DoubleAnimation();
+                animationTop.Duration = TimeSpan.FromMilliseconds(iMilliseconds);
+                animationTop.From = lmp.startPoint.Y;
+                animationTop.To = lmp.endPoint.Y;
+                animationTop.EasingFunction = ease;
 
-                //throw new NotImplementedException();
+                Storyboard.SetTarget(animationTop, lmp);
+                Storyboard.SetTargetProperty(animationTop, new PropertyPath(Canvas.TopProperty));
+                storyboard.Children.Add(animationTop);
+
+
+                DoubleAnimation animationLeft = new DoubleAnimation();
+                animationLeft.Duration = TimeSpan.FromMilliseconds(iMilliseconds);
+                animationLeft.From = lmp.startPoint.X;
+                animationLeft.To = lmp.endPoint.X;
+                animationLeft.EasingFunction = ease;
+
+                Storyboard.SetTarget(animationLeft, lmp);
+                Storyboard.SetTargetProperty(animationLeft, new PropertyPath(Canvas.LeftProperty));
+                storyboard.Children.Add(animationLeft);
+
+                storyboard.Begin();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //throw;
+                logException(ex);
             }
-        }
-
-        public void MediaJump()
-        {
-
         }
 
         private void LoadWindows()
