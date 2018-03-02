@@ -90,32 +90,38 @@
 
         <Grid Name="settings" Grid.Row="1" Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="20" />
-                <RowDefinition Height="20" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="30" />
                 <RowDefinition Height="24" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
-            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged" />
-            <CheckBox x:Name="primaryMonitor" Grid.Row="1" Content="Primary Monitor" IsChecked="True" />
-            <CheckBox x:Name="LEDs" Grid.Row="2" Content="Ardunio LEDs" IsChecked="True" />
-            <CheckBox x:Name="loopAudio" Grid.Row="3" Content="Loop Audio" IsChecked="True" />
-            <ListBox x:Name="LEDPatterns" Grid.Row="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <ListBox x:Name="visualizations" Grid.Row="5"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <Label x:Name="AudioCount" Grid.Row="0" Content="No audio added" />
+            <Label x:Name="PhotoCount" Grid.Row="1" Content="No photos added" />
+            <Label x:Name="VideoCount" Grid.Row="2" Content="No videos added" />
+            
+            <ComboBox x:Name="audioDevices" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged" />
+            <CheckBox x:Name="primaryMonitor" Grid.Row="4" Content="Primary Monitor" IsChecked="True" />
+            <CheckBox x:Name="LEDs" Grid.Row="5" Content="Ardunio LEDs" IsChecked="True" />
+            <CheckBox x:Name="loopAudio" Grid.Row="6" Content="Loop Audio" IsChecked="True" />
+            <ListBox x:Name="LEDPatterns" Grid.Row="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ListBox x:Name="visualizations" Grid.Row="8"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
 
-            <Slider x:Name="AudioVolume" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
-            <Label x:Name="Audio"  Grid.Row="8" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <Button x:Name="AudioNext" Grid.Row="8" Content="Next" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="80" Click="AudioNext_Click" />
-            <Button x:Name="AudioPrior" Grid.Row="8" Content="Prior" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="80" Click="AudioPrior_Click" />
+            <Slider x:Name="AudioVolume" Grid.Row="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
+            <Label x:Name="Audio"  Grid.Row="10" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Button x:Name="AudioNext" Grid.Row="10" Content="Next" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="80" Click="AudioNext_Click" />
+            <Button x:Name="AudioPrior" Grid.Row="10" Content="Prior" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="80" Click="AudioPrior_Click" />
 
-            <Button x:Name="play" Grid.Row="10" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" IsDefault="True" />
+            <Button x:Name="play" Grid.Row="12" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" IsDefault="True" />
             
         </Grid>
         

@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows;
+using System.IO.Ports;
 
 namespace Lounge
 {
@@ -40,6 +41,7 @@ namespace Lounge
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
         private Random loungeRandom = new Random(DateTime.Now.Millisecond);
 
+        private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
         private string currentVisualization = "";
         #endregion
@@ -262,6 +264,10 @@ namespace Lounge
                         files.Remove(fileFound);
                     }
                 }
+
+                mainWindow.AudioCount.Content = AudioFiles.Count.ToString() + " audio files";
+                mainWindow.PhotoCount.Content = PhotoFiles.Count.ToString() + " photo files";
+                mainWindow.VideoCount.Content = VideoFiles.Count.ToString() + " video files";
             }
             catch (Exception)
             {
@@ -764,6 +770,46 @@ namespace Lounge
             }
         }
 
+        private void UpdateColor()
+        {
+            try
+            {
+                foreach (LoungeMediaFrame lmf in mediaFrames)
+                {
+                    lmf.Background = new SolidColorBrush(currentColor);
+                    //TODO: update visualization items
+                }
+
+                if ((bool)mainWindow.LEDs.IsChecked)
+                {
+                    //- UPDATE LEDs -
+                    //Pattern: Visualization, Brightness (0 - 255), Glitter Percentage, List of colors
+                    //Example: 0,80,255,0,0,
+                    string sLEDData =
+                        "0," +
+                        "48," +
+                        "80," +
+                        currentColor.R.ToString() + "," +
+                        currentColor.G.ToString() + "," +
+                        currentColor.B.ToString() + ",";
+
+
+                    serialPort = new SerialPort("COM3", 115200);  //9600
+                    //serialPort.DataReceived += serialPort1_DataReceived;
+
+                    serialPort.Open();
+                    serialPort.Write(sLEDData);
+                    serialPort.Close();
+                    serialPort.Dispose();
+                    serialPort = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void Dispose()
         {
             try
@@ -782,6 +828,7 @@ namespace Lounge
             catch 
             { }
         }
+
 
         private void VisualizationSelect()
         {
