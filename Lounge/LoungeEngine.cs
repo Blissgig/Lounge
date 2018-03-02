@@ -134,6 +134,7 @@ namespace Lounge
                     
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
+                        mediaFrame.Background = new SolidColorBrush(currentColor);
                         LoadScene(mediaFrame);
                     }
 
@@ -810,12 +811,24 @@ namespace Lounge
         {
             try
             {
-                Console.WriteLine("data: " + visualData[0].ToString());
+                Border visualElement;
+                Grid grid;
 
-                //foreach (LoungeMediaFrame lmf in mediaFrames)
-                //{
-
-                //}
+                switch (currentVisualization.ToLower())
+                {
+                    case "bars":
+                        for (int iValue = 0; iValue < visualData.Count; iValue++)
+                        {
+                            foreach (LoungeMediaFrame lmf in mediaFrames)
+                            {
+                                grid = (Grid)lmf.Visualizations.Children[0];
+                                visualElement = (Border)grid.Children[iValue];
+                                visualElement.Height =  ((lmf.ActualHeight / 255) * visualData[iValue]); 
+                                visualElement.Opacity = (visualData[iValue] * .01);
+                            }
+                        }
+                        break;
+                }
             }
             catch (Exception ex)
             {

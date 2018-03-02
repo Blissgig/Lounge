@@ -14,7 +14,7 @@
                       LoadedBehavior="Manual"
                       Volume="0"
                       HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch" 
+                      VerticalAlignment="Stretch"
                       />
     </Canvas>
 </UserControl>
