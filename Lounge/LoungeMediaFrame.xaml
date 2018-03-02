@@ -15,7 +15,7 @@
                 />
 
         <Canvas Name="Visualizations" 
-                Opacity="0" 
+                Opacity="1" 
                 Margin="0" 
                  />
     </Grid>

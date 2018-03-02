@@ -42,6 +42,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -52,11 +53,19 @@
                 Grid.Column="0" 
                 HorizontalAlignment="Stretch" 
                 Click="back_Click" />
+
+            <Button 
+                x:Name="selectHome"
+                Content="Home" 
+                Grid.Column="1" 
+                HorizontalAlignment="Stretch"
+                Click="home_Click"
+                />
             
             <Button 
                 x:Name="selectAll"
                 Content="Select All" 
-                Grid.Column="1" 
+                Grid.Column="2" 
                 HorizontalAlignment="Stretch"
                 Click="selectAll_Click"
                 />
@@ -93,7 +102,7 @@
                 <RowDefinition Height="10" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
-            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <ComboBox x:Name="audioDevices" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged" />
             <CheckBox x:Name="primaryMonitor" Grid.Row="1" Content="Primary Monitor" IsChecked="True" />
             <CheckBox x:Name="LEDs" Grid.Row="2" Content="Ardunio LEDs" IsChecked="True" />
             <CheckBox x:Name="loopAudio" Grid.Row="3" Content="Loop Audio" IsChecked="True" />

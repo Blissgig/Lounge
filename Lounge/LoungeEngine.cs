@@ -29,6 +29,7 @@ namespace Lounge
         private int minimumSceneTime = 10;  //Seconds
         private int maximumSceneTime = 20;
 
+        private Color currentColor = Colors.Red;
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
         private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
@@ -37,9 +38,10 @@ namespace Lounge
         private ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
+        private Random loungeRandom = new Random(DateTime.Now.Millisecond);
 
         private Analyzer loungeAnalyzer;
-        private Random loungeRandom = new Random(DateTime.Now.Millisecond);
+        private string currentVisualization = "";
         #endregion
 
         public LoungeEngine(MainWindow window)
@@ -84,7 +86,29 @@ namespace Lounge
                     }
                 }
 
+                
+                //Audio Visualization Options
+                System.Windows.Controls.CheckBox vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Bars";
+                vis.IsChecked = true;
+                mainWindow.visualizations.Items.Add(vis);
 
+                //Set the users default audio device
+                string sValue = SettingGet("AudioDevice");
+
+                if (sValue.Trim().Length > 0)
+                {
+                    for(int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
+                    {
+                        var x = (string)mainWindow.audioDevices.Items[i];
+
+                        if (x == sValue)
+                        {
+                            mainWindow.audioDevices.SelectedIndex = 0; //TODO: erroring for some reason
+                            break;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -103,7 +127,7 @@ namespace Lounge
                 else
                 {
                     mainWindow.WindowState = System.Windows.WindowState.Minimized;
-
+                    
                     AudioNext();
 
                     LoadWindows();
@@ -112,6 +136,11 @@ namespace Lounge
                     {
                         LoadScene(mediaFrame);
                     }
+
+                    VisualizationSelect();  //Must come after the frames are loaded
+
+                    loungeAnalyzer.Enable = true;
+                    loungeAnalyzer.DisplayEnable = true;
                 }
             }
             catch (Exception ex)
@@ -191,6 +220,12 @@ namespace Lounge
             {
                 logException(ex);
             }
+        }
+
+        public void Home()
+        {
+            breadcrumbs.Clear();
+            ListFiles(null);
         }
 
         public void Back()
@@ -732,7 +767,11 @@ namespace Lounge
         {
             try
             {
-                foreach(LoungeMediaFrame mediaFrame in mediaFrames)
+                loungeAnalyzer.Enable = false;
+                loungeAnalyzer.DisplayEnable = false;
+                loungeAnalyzer = null;
+
+                foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                 {
                     mediaFrame.Close();
                 }
@@ -743,13 +782,89 @@ namespace Lounge
             { }
         }
 
-        public void SetVisualization(List<byte> visualData)
+        private void VisualizationSelect()
         {
             try
             {
-                foreach(LoungeMediaFrame lmf in mediaFrames)
-                {
+                List<string> visualizations = new List<string>();
 
+                foreach(System.Windows.Controls.CheckBox checkbox in mainWindow.visualizations.Items)
+                { 
+                    if ((bool)checkbox.IsChecked)
+                    {
+                        visualizations.Add(checkbox.Content.ToString());
+                    }
+                }
+
+                this.currentVisualization = visualizations[loungeRandom.Next(0, visualizations.Count)];
+
+                VisualizationSetup();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void Visualization(List<byte> visualData)
+        {
+            try
+            {
+                Console.WriteLine("data: " + visualData[0].ToString());
+
+                //foreach (LoungeMediaFrame lmf in mediaFrames)
+                //{
+
+                //}
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void VisualizationSetup()
+        {
+            try
+            {
+                //Based on current visualization, setup the vis canvas.
+                foreach (LoungeMediaFrame lmf in mediaFrames)
+                {
+                    lmf.Visualizations.Children.Clear();
+                    
+                    switch (currentVisualization.ToLower())
+                    {
+                        case "bars":
+                            Grid vizGrid = new Grid();
+                            vizGrid.Width = lmf.ActualWidth;
+                            vizGrid.Height = lmf.ActualHeight;
+
+                            lmf.Visualizations.Children.Add(vizGrid);
+                            
+                            Canvas.SetLeft(vizGrid, 0);
+                            Canvas.SetTop(vizGrid, 0);
+
+                            for (int iColumn = 0; iColumn < loungeAnalyzer.spectrumLines; iColumn++)
+                            {
+                                var columnDefinition = new ColumnDefinition();
+                                columnDefinition.Width = new GridLength(1, GridUnitType.Star);
+                                vizGrid.ColumnDefinitions.Add(columnDefinition);
+
+                                Border bar = new Border();
+                                bar.Name = "bar" + iColumn.ToString();
+                                bar.BorderThickness = new Thickness(1);
+                                bar.CornerRadius = new CornerRadius(10);
+                                bar.Margin = new Thickness(1);
+                                bar.BorderBrush = new SolidColorBrush(Colors.Black);
+                                bar.Background = new SolidColorBrush(currentColor); 
+                                bar.Opacity = 1;
+
+                                vizGrid.Children.Add(bar);
+
+                                Grid.SetColumn(bar, iColumn);
+                            }
+                            break;
+                    }
                 }
             }
             catch (Exception ex)
@@ -758,17 +873,29 @@ namespace Lounge
             }
         }
 
-        public void SetupVisualization()
+        private string SettingGet(string setting)
+        {
+            string sReturn = "";
+
+            try
+            {
+                sReturn = (string)Properties.Settings.Default[setting];
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+
+            return sReturn;
+        }
+
+        public void SettingSave(string setting, string value)
         {
             try
             {
-                foreach (LoungeMediaFrame lmf in mediaFrames)
-                {
-                    lmf.Visualizations.Children.Clear();
+                Properties.Settings.Default[setting] = value;
 
-                    //TODO: Based on current visualization, setup the vis canvas.
-
-                }
+                Properties.Settings.Default.Save();
             }
             catch (Exception ex)
             {
@@ -833,8 +960,8 @@ namespace Lounge
     internal class Analyzer
     {
         private bool _enable;               //enabled status
-        private DispatcherTimer _t;         //timer that refreshes the display
-        private byte mbTimerTime = 25;
+        private DispatcherTimer dispatchTimer;         //timer that refreshes the display
+        private byte timerTime = 25;
         public float[] _fft;               //buffer for fft data
         private WASAPIPROC _process;        //callback function to obtain data
         private int _lastlevel;             //last output level
@@ -843,23 +970,21 @@ namespace Lounge
         private List<AudioDeviceInfo> AudioDevices = new List<AudioDeviceInfo>();     //NEW non-UI device list
         private bool _initialized;          //initialized flag
         private int devindex;               //used device index
-        private MainWindow mainWindow = null;
-        private int _lines = 64;            // number of spectrum lines
+        public int spectrumLines = 64;            // number of spectrum lines
         private LoungeEngine loungeEngine;
 
         public Analyzer(LoungeEngine loungeEngine)
         {  
             try
             {
-                //mainWindow = Window;
                 this.loungeEngine = loungeEngine;
 
                 _fft = new float[8192];
                 _lastlevel = 0;
                 _hanctr = 0;
-                _t = new DispatcherTimer();
-                _t.Tick += Tick;
-                _t.Interval = TimeSpan.FromMilliseconds(mbTimerTime); 
+                dispatchTimer = new DispatcherTimer();
+                dispatchTimer.Tick += Tick;
+                dispatchTimer.Interval = TimeSpan.FromMilliseconds(timerTime); 
                 _process = new WASAPIPROC(Process);
                 _initialized = false;
 
@@ -885,23 +1010,34 @@ namespace Lounge
                 {
                     if (!_initialized)
                     {
-                        devindex = AudioDevices[mainWindow.audioDevices.SelectedIndex].DeviceID;
-
-                        bool result = BassWasapi.BASS_WASAPI_Init(devindex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero);
-                        if (!result)
+                        if (loungeEngine.mainWindow.audioDevices.SelectedIndex > -1)
                         {
-                            var error = Bass.BASS_ErrorGetCode();
+                            devindex = AudioDevices[loungeEngine.mainWindow.audioDevices.SelectedIndex].DeviceID;
+
+                            bool result = BassWasapi.BASS_WASAPI_Init(devindex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero);
+                            if (!result)
+                            {
+                                var error = Bass.BASS_ErrorGetCode();
+                            }
+                            else
+                            {
+                                _initialized = true;
+                            }
                         }
                         else
                         {
-                            _initialized = true;
+                            _initialized = false;
                         }
                     }
                     BassWasapi.BASS_WASAPI_Start();
+                    dispatchTimer.IsEnabled = true;
                 }
-                else BassWasapi.BASS_WASAPI_Stop(true);
-                System.Threading.Thread.Sleep(500);
-                _t.IsEnabled = value;
+                else
+                {
+                    BassWasapi.BASS_WASAPI_Stop(true);
+                    System.Threading.Thread.Sleep(500);
+                    dispatchTimer.IsEnabled = false;
+                }
             }
         }
 
@@ -947,10 +1083,10 @@ namespace Lounge
                 int b0 = 0;
 
                 //computes the spectrum data, the code is taken from a bass_wasapi sample.
-                for (x = 0; x < _lines; x++)
+                for (x = 0; x < spectrumLines; x++)
                 {
                     float peak = 0;
-                    int b1 = (int)Math.Pow(2, x * 10.0 / (_lines - 1));
+                    int b1 = (int)Math.Pow(2, x * 10.0 / (spectrumLines - 1));
                     if (b1 > 1023) b1 = 1023;
                     if (b1 <= b0) b1 = b0 + 1;
                     for (; b0 < b1; b0++)
@@ -971,7 +1107,7 @@ namespace Lounge
                 }
 
                 //Send visualization data back to engine to render on all windows
-                loungeEngine.SetVisualization(visualizationData);
+                loungeEngine.Visualization(visualizationData);
 
                 visualizationData.Clear();
 

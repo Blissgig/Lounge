@@ -32,6 +32,11 @@ namespace Lounge
             loungeEngine.MediaPlay();
         }
 
+        private void home_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.Home();
+        }
+
         private void back_Click(object sender, RoutedEventArgs e)
         {
             loungeEngine.Back();
@@ -71,5 +76,9 @@ namespace Lounge
             loungeEngine = null;
         }
 
+        private void audioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            loungeEngine.SettingSave("AudioDevice", audioDevices.SelectedValue.ToString());
+        }
     }
 }
