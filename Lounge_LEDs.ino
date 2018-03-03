@@ -58,3 +58,23 @@ void addGlitter( fract8 chanceOfGlitter)
     leds[ random16(NUM_LEDS) ] += CRGB::White;
   }
 }
+
+void serialEvent() 
+{
+  serialResponse = Serial.readStringUntil('\r\n');
+  //serialResponse = Serial.readStringUntil('\n');  //close but
+  
+  // Convert from String Object to String.
+    char buf[sizeof(sz)];
+    serialResponse.toCharArray(buf, sizeof(buf));
+    char *p = buf;
+    char *str;
+
+    // delimiter is the semicolon
+    while ((str = strtok_r(p, ";", &p)) != NULL) 
+    {
+      Serial.println(str);
+    }
+    
+   // FastLED.show();
+}
