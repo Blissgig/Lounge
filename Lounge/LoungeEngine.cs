@@ -45,6 +45,8 @@ namespace Lounge
         private DispatcherTimer dispatchTimer;
         private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
+        private const byte BassLevel = 180;
+        private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
         #endregion
 
@@ -165,6 +167,8 @@ namespace Lounge
         {
             try
             {
+                Cursor.Current = Cursors.WaitCursor;
+
                 FileFolderData ffd = (FileFolderData)mainWindow.FoldersFiles.SelectedItem;
 
                 if (ffd != null)
@@ -187,6 +191,10 @@ namespace Lounge
             catch (Exception ex)
             {
                 logException(ex);
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
             }
         }
 
@@ -246,7 +254,9 @@ namespace Lounge
         {
             try
             {
-                foreach(FileFolderData ffd in filesFolders)
+                Cursor.Current = Cursors.WaitCursor;
+
+                foreach (FileFolderData ffd in filesFolders)
                 {
                     if (ffd.Type == FileFolderData.FileFolderType.File)
                     {
@@ -270,6 +280,10 @@ namespace Lounge
             catch (Exception ex)
             {
                 logException(ex);
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
             }
         }
 
@@ -839,7 +853,7 @@ namespace Lounge
                 //This "flash" is to hide the change of media or the media's position
                 Storyboard storyboard = new Storyboard();
                 DoubleAnimation animation = new DoubleAnimation();
-                animation.Duration = TimeSpan.FromMilliseconds(1888);
+                animation.Duration = TimeSpan.FromMilliseconds(1700);
                 animation.From = 1.0;
                 animation.To = 0.0;
 
@@ -887,6 +901,37 @@ namespace Lounge
 
                 var jump = new TimeSpan(0, 0, Convert.ToInt32(totalSeconds));
                 mediaElement.Position = jump;
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        private void MediaRandom()
+        {
+            try
+            {
+                LoungeMediaFrame mediaFrame = mediaFrames[loungeRandom.Next(0, mediaFrames.Count)];
+                LoungeMediaPlayer mediaPlayer = (LoungeMediaPlayer)mediaFrame.Medias.Children[loungeRandom.Next(0, mediaFrame.Medias.Children.Count)];
+
+                dispatchTimer.Stop();
+                dispatchTimer = null;
+
+                int i = loungeRandom.Next(0, 100);
+
+                if (i < 80)
+                {
+                    //Generally just want to stay within the same media
+                    MediaJump(mediaPlayer.LoungeMediaElement);
+                }
+
+                else
+                {
+                    MediaLoad(mediaPlayer.LoungeMediaElement);
+                }
+
+                CreateTimer();
             }
             catch (Exception ex)
             {
@@ -956,33 +1001,14 @@ namespace Lounge
         {
             try
             {
-                LoungeMediaFrame mediaFrame = mediaFrames[loungeRandom.Next(0, mediaFrames.Count)];
-                LoungeMediaPlayer mediaPlayer = (LoungeMediaPlayer)mediaFrame.Medias.Children[loungeRandom.Next(0, mediaFrame.Medias.Children.Count)];
-                
-                dispatchTimer.Stop();
-                dispatchTimer = null;
-
-                int i = loungeRandom.Next(0, 100);
-
-                if (i < 80)
-                {
-                    //Generally just want to stay within the same media
-                    MediaJump(mediaPlayer.LoungeMediaElement);
-                }
-
-                else
-                {
-                    MediaLoad(mediaPlayer.LoungeMediaElement);
-                }
-                
-                CreateTimer();
+                MediaRandom();
             }
             catch (Exception ex)
             {
                 logException(ex);
             }
         }
-
+        
         private void UpdateColor()
         {
             try
@@ -1074,12 +1100,20 @@ namespace Lounge
             {
                 Border visualElement;
                 Grid grid;
+                bool isBoom = false; //used to trigger function(s) when bass is high enough
 
                 switch (currentVisualization.ToLower())
                 {
                     case "bars":
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
+                            if (iValue < 15)
+                            {
+                                if (visualData[iValue] > BassLevel)
+                                {
+                                    isBoom = true;
+                                }
+                            }
                             foreach (LoungeMediaFrame lmf in mediaFrames)
                             {
                                 grid = (Grid)lmf.Visualizations.Children[0];
@@ -1089,6 +1123,17 @@ namespace Lounge
                             }
                         }
                         break;
+                }
+
+                if (isBoom)
+                {
+                    var diffInSeconds = (DateTime.Now - lastBoom).TotalSeconds;
+                    if (diffInSeconds > 2)
+                    {
+                        MediaRandom();
+                        lastBoom = DateTime.Now; //Reset the Boom
+                    }
+                    
                 }
             }
             catch (Exception ex)
