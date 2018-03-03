@@ -11,6 +11,7 @@ using Un4seen.Bass;
 using Un4seen.BassWasapi;
 using System.Windows.Threading;
 using System.Windows.Controls;
+using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows;
@@ -40,7 +41,7 @@ namespace Lounge
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
         private Random loungeRandom = new Random(DateTime.Now.Millisecond);
-
+        private DispatcherTimer dispatchTimer;
         private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
         private string currentVisualization = "";
@@ -133,17 +134,24 @@ namespace Lounge
                     AudioNext();
 
                     LoadWindows();
-                    
+
+                    UpdateColor();
+
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
-                        mediaFrame.Background = new SolidColorBrush(currentColor);
                         LoadScene(mediaFrame);
                     }
 
-                    VisualizationSelect();  //Must come after the frames are loaded
+                    
+                    if (AudioFiles.Count > 0)
+                    {
+                        VisualizationSelect();  //Must come after the frames are loaded
 
-                    loungeAnalyzer.Enable = true;
-                    loungeAnalyzer.DisplayEnable = true;
+                        loungeAnalyzer.Enable = true;
+                        loungeAnalyzer.DisplayEnable = true;
+                    }
+                    
+                    CreateTimer();
                 }
             }
             catch (Exception ex)
@@ -541,11 +549,14 @@ namespace Lounge
                 byte bPlayerCount = 0;
                 double dHeight = 400;
                 double dWidth = 400;
-                Point startPoint = new Point(0, 0);
-                Point endPoint = new Point(0, 0);
+                double dBorder = 10;
+                var startPoint = new Point(0, 0);
+                var endPoint = new Point(0, 0);
                 List<byte> playerCount = new List<byte>();
 
-
+                //Note: I am not happy with this code
+                //      There should be a better way to randomly distribute the media players around the scene.
+                //      However, atm I do not have a better solution and I need to get this working at all, vs "academic"
                 if (IsPortrait(mediaFrame))
                 {
                     //Portrait mode can have 2 or 3 media players
@@ -657,15 +668,16 @@ namespace Lounge
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
                     mediaPlayer.startPoint = startPoint;
                     mediaPlayer.endPoint = endPoint;
-
+                    
                     int i = loungeRandom.Next(0, VideoFiles.Count);
                     FileInfo media = VideoFiles[i];
 
                     
                     mediaPlayer.Width = dWidth;
                     mediaPlayer.Height = dHeight;
-                    mediaPlayer.LoungeMediaElement.Height = dHeight;
-                    mediaPlayer.LoungeMediaElement.Width = dWidth;
+                    mediaPlayer.LoungeMediaElement.Height = dHeight - (dBorder * 2);
+                    mediaPlayer.LoungeMediaElement.Width = dWidth - (dBorder * 2);
+                    mediaPlayer.LoungeMediaElement.Margin = new Thickness(dBorder);
 
                     mediaFrame.Medias.Children.Add(mediaPlayer);
                     Canvas.SetTop(mediaPlayer, startPoint.Y);
@@ -674,7 +686,22 @@ namespace Lounge
                     mediaPlayer.LoungeMediaElement.Source = new Uri(media.FullName);
                     mediaPlayer.LoungeMediaElement.Play();
                     mediaPlayer.LoungeMediaElement.MediaOpened += LoungeMediaElement_MediaOpened;
+                    mediaPlayer.LoungeMediaElement.MediaEnded += LoungeMediaElement_MediaEnded;
+                    mediaPlayer.LoungeMediaElement.MediaFailed += LoungeMediaElement_MediaEnded;
                 }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        private void LoungeMediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var mediaElement = (MediaElement)sender;
+                MediaLoad(mediaElement);
             }
             catch (Exception ex)
             {
@@ -726,6 +753,81 @@ namespace Lounge
                 logException(ex);
             }
         }
+        
+        private void MediaTransition(MediaElement mediaElement)
+        {
+            try
+            {
+                var cover = new Rectangle();
+                var canvas = (Canvas)mediaElement.Parent;
+                var lmp = (LoungeMediaPlayer)canvas.Parent;
+
+
+                cover.Height = canvas.ActualHeight;
+                cover.Width = canvas.ActualWidth;
+                cover.Fill = new SolidColorBrush(currentColor);
+                
+                lmp.Transition.Children.Add(cover);
+                Canvas.SetLeft(cover, 0);
+                Canvas.SetTop(cover, 0);
+
+                //This "flash" is to hide the change of media or the media's position
+                Storyboard storyboard = new Storyboard();
+                DoubleAnimation animation = new DoubleAnimation();
+                animation.Duration = TimeSpan.FromMilliseconds(1888);
+                animation.From = 1.0;
+                animation.To = 0.0;
+
+                Storyboard.SetTarget(animation, cover);
+                Storyboard.SetTargetProperty(animation, new PropertyPath(Rectangle.OpacityProperty));
+                storyboard.Children.Add(animation);
+
+                storyboard.Completed += (sndr, evts) =>
+                {
+                    lmp.Transition.Children.Clear();
+                };
+                storyboard.Begin();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void MediaLoad(MediaElement mediaElement)
+        {
+            try
+            {
+                MediaTransition(mediaElement);
+
+                int i = loungeRandom.Next(0, VideoFiles.Count);
+                FileInfo media = VideoFiles[i];
+                mediaElement.Source = new Uri(media.FullName);
+                mediaElement.Play();
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        private void MediaJump(MediaElement mediaElement)
+        {
+            try
+            {
+                MediaTransition(mediaElement);
+
+                double totalSeconds = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
+                totalSeconds = loungeRandom.Next(5, Convert.ToInt32(totalSeconds));
+
+                var jump = new TimeSpan(0, 0, Convert.ToInt32(totalSeconds));
+                mediaElement.Position = jump;
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
 
         private void LoadWindows()
         {
@@ -770,14 +872,63 @@ namespace Lounge
             }
         }
 
+        private void CreateTimer()
+        {
+            try
+            {
+                dispatchTimer = new DispatcherTimer();
+                dispatchTimer.Tick += Dispatch_Tick;
+                dispatchTimer.Interval = TimeSpan.FromSeconds(loungeRandom.Next(minimumSceneTime, maximumSceneTime));
+                dispatchTimer.Start();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void Dispatch_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                LoungeMediaFrame mediaFrame = mediaFrames[loungeRandom.Next(0, mediaFrames.Count)];
+                LoungeMediaPlayer mediaPlayer = (LoungeMediaPlayer)mediaFrame.Medias.Children[loungeRandom.Next(0, mediaFrame.Medias.Children.Count)];
+                
+                dispatchTimer.Stop();
+                dispatchTimer = null;
+
+                int i = loungeRandom.Next(0, 100);
+
+                if (i < 80)
+                {
+                    //Generally just want to stay within the same media
+                    MediaJump(mediaPlayer.LoungeMediaElement);
+                }
+
+                else
+                {
+                    MediaLoad(mediaPlayer.LoungeMediaElement);
+                }
+                
+                CreateTimer();
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         private void UpdateColor()
         {
             try
             {
+                var background = new SolidColorBrush(currentColor);
+
                 foreach (LoungeMediaFrame lmf in mediaFrames)
                 {
-                    lmf.Background = new SolidColorBrush(currentColor);
-                    //TODO: update visualization items
+                    lmf.Background = background;
+                    lmf.Medias.Background = background;
+                    //TODO: update visualization items and other children
                 }
 
                 if ((bool)mainWindow.LEDs.IsChecked)
@@ -794,14 +945,13 @@ namespace Lounge
                         currentColor.B.ToString() + ",";
 
 
-                    serialPort = new SerialPort("COM3", 115200);  //9600
-                    //serialPort.DataReceived += serialPort1_DataReceived;
-
-                    serialPort.Open();
-                    serialPort.Write(sLEDData);
-                    serialPort.Close();
-                    serialPort.Dispose();
-                    serialPort = null;
+                    //serialPort = new SerialPort("COM3", 115200);  //9600
+             
+                    //serialPort.Open();
+                    //serialPort.Write(sLEDData);
+                    //serialPort.Close();
+                    //serialPort.Dispose();
+                    //serialPort = null;
                 }
             }
             catch (Exception ex)
@@ -828,8 +978,7 @@ namespace Lounge
             catch 
             { }
         }
-
-
+        
         private void VisualizationSelect()
         {
             try

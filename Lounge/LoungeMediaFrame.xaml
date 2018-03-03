@@ -10,13 +10,8 @@
         WindowStyle="None"
         ShowInTaskbar="False">
     <Grid Background="Black">
-        <Canvas Name="Medias"
-                Margin="0"                 
-                />
+        <Canvas Name="Medias" />
 
-        <Canvas Name="Visualizations" 
-                Opacity="1" 
-                Margin="0" 
-                 />
+        <Canvas Name="Visualizations"  />
     </Grid>
 </Window>

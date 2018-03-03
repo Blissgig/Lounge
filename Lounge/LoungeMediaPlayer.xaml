@@ -16,5 +16,7 @@
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       />
+        
+        <Canvas Name="Transition" />
     </Canvas>
 </UserControl>
