@@ -27,6 +27,11 @@ namespace Lounge
             loungeEngine.RowSelected();
         }
 
+        private void audioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            loungeEngine.SettingSave("AudioDevice", audioDevices.SelectedValue.ToString());
+        }
+
         private void play_Click(object sender, RoutedEventArgs e)
         {
             loungeEngine.MediaPlay();
@@ -76,9 +81,6 @@ namespace Lounge
             loungeEngine = null;
         }
 
-        private void audioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            loungeEngine.SettingSave("AudioDevice", audioDevices.SelectedValue.ToString());
-        }
+
     }
 }

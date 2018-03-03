@@ -36,7 +36,8 @@ namespace Lounge
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
         private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
         private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
-        
+        private string acceptableMediaPlaylistTypes = "*.m3u,"; //  '".m3u,.wpl,";
+
         private ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
@@ -178,21 +179,60 @@ namespace Lounge
                         case FileFolderData.FileFolderType.File:
 
                             ffd.Selected = !ffd.Selected;
-
-                            //Add/Remove from media lists
-                            if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
-                            {
-                                AddRemoveMedia(AudioFiles, ffd);
-                            }
-                            else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
-                            {
-                                AddRemoveMedia(PhotoFiles, ffd);
-                            }
-                            else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
-                            {
-                                AddRemoveMedia(VideoFiles, ffd);
-                            }
+                            AddRemoveMedia(ffd.File);
                             break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        private void LoadPlaylist(FileInfo file)
+        {
+            try
+            {
+                FileInfo MediaFile;
+
+                using (StreamReader PlaylistReader = new StreamReader(file.FullName))
+                {
+                    string sLine;
+
+                    while ((sLine = PlaylistReader.ReadLine()) != null)
+                    {
+                        if (sLine.Trim().Length > 0 && sLine.Substring(0, 1) != "#")
+                        {
+                            if (File.Exists(sLine) == true)
+                            {
+                                MediaFile = new FileInfo(sLine);
+                                AddRemoveMedia(MediaFile);
+                            }
+                            else if (File.Exists(file.DirectoryName + "\\" + sLine) == true)
+                            {
+                                MediaFile = new FileInfo(file.DirectoryName + "\\" + sLine);
+                                AddRemoveMedia(MediaFile);
+                            }
+                            else
+                            {
+                                //Loop through file path in combo with playlist drive
+                                string sDirPath = file.DirectoryName;
+                                string sFilePath = sLine;
+
+                                while (sFilePath.IndexOf("\\") > -1)
+                                {
+                                    sFilePath = sFilePath.Substring(sFilePath.IndexOf("\\") + 1);
+
+                                    if (File.Exists(sDirPath + "\\" + sFilePath) == true)
+                                    {
+                                        MediaFile = new FileInfo(sDirPath + "\\" + sFilePath);
+                                        AddRemoveMedia(MediaFile);
+                                        sFilePath = "";
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -214,15 +254,15 @@ namespace Lounge
 
                         if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
                         {
-                            AddRemoveMedia(AudioFiles, ffd);
+                            AddRemoveMedia(AudioFiles, ffd.File);
                         }
                         else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
                         {
-                            AddRemoveMedia(PhotoFiles, ffd);
+                            AddRemoveMedia(PhotoFiles, ffd.File);
                         }
                         else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
                         {
-                            AddRemoveMedia(VideoFiles, ffd);
+                            AddRemoveMedia(VideoFiles, ffd.File);
                         }
                     }
                 }
@@ -255,27 +295,52 @@ namespace Lounge
             }
         }
 
-        public void AddRemoveMedia(List<FileInfo> files, FileFolderData ffd)
+        public void AddRemoveMedia(List<FileInfo> files, FileInfo file)
         {
             try
             {
-                if (ffd.Selected)
+                FileInfo fileFound = files.Find(x => x.FullName == file.FullName);
+
+                if (fileFound != null)
                 {
-                    files.Add(ffd.File);
+                    files.Remove(fileFound);
                 }
                 else
                 {
-                    FileInfo fileFound = files.Find(x => x.FullName == ffd.File.FullName);
-
-                    if (fileFound != null)
-                    {
-                        files.Remove(fileFound);
-                    }
+                    files.Add(file);
                 }
+                
 
                 mainWindow.AudioCount.Content = AudioFiles.Count.ToString() + " audio files";
                 mainWindow.PhotoCount.Content = PhotoFiles.Count.ToString() + " photo files";
                 mainWindow.VideoCount.Content = VideoFiles.Count.ToString() + " video files";
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void AddRemoveMedia(FileInfo file)
+        { 
+            try
+            {
+                if (acceptableMediaAudioTypes.IndexOf(file.Extension) > -1)
+                {
+                    AddRemoveMedia(AudioFiles, file);
+                }
+                else if (acceptableMediaPhotoTypes.IndexOf(file.Extension) > -1)
+                {
+                    AddRemoveMedia(PhotoFiles, file);
+                }
+                else if (acceptableMediaVideoTypes.IndexOf(file.Extension) > -1)
+                {
+                    AddRemoveMedia(VideoFiles, file);
+                }
+                else if (acceptableMediaPlaylistTypes.IndexOf(file.Extension) > -1)
+                {
+                    LoadPlaylist(file);
+                }
             }
             catch (Exception)
             {
@@ -376,7 +441,7 @@ namespace Lounge
                 {
                     DirectoryInfo[] folders = directory.GetDirectories();
                     FileInfo[] files = directory.GetFiles();
-                    string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes;
+                    string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes + acceptableMediaPlaylistTypes;
                     foreach (DirectoryInfo folder in folders)
                     {
                         if (IsFolderValid(folder))
