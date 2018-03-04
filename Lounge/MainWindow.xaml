@@ -12,7 +12,7 @@
         WindowState="Maximized" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
-        Icon="app.ico" KeyUp="Window_KeyUp" 
+        Icon="app.ico" KeyUp="Window_KeyUp" Background="{DynamicResource WindowBackgroundBrush}" 
         >
 
     <Grid>
