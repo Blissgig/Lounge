@@ -163,6 +163,23 @@ namespace Lounge
             }
         }
 
+        public void KeyPress(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            try
+            {
+                switch (e.Key)
+                {
+                    case System.Windows.Input.Key.Escape:
+                        Dispose();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void RowSelected()
         {
             try
@@ -1065,6 +1082,8 @@ namespace Lounge
                 }
 
                 mediaFrames.Clear();
+
+                mainWindow.Close();
             }
             catch 
             { }

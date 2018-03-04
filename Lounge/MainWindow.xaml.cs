@@ -75,12 +75,15 @@ namespace Lounge
             }
         }
 
+        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            loungeEngine.KeyPress(sender, e);
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             loungeEngine.Dispose();
             loungeEngine = null;
         }
-
-
     }
 }

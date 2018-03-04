@@ -12,7 +12,7 @@
         WindowState="Maximized" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
-        Icon="app.ico" 
+        Icon="app.ico" KeyUp="Window_KeyUp" 
         >
 
     <Grid>
@@ -43,32 +43,38 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Button 
                 x:Name="back" 
-                Content="Back" 
                 Grid.Column="0" 
+                Margin="2"
                 HorizontalAlignment="Stretch" 
-                Click="back_Click" />
-
+                Click="back_Click" >
+                <Image Name="backImage" Source="Assets/back.png" />
+            </Button>
             <Button 
                 x:Name="selectHome"
-                Content="Home" 
                 Grid.Column="1" 
+                Margin="2"
                 HorizontalAlignment="Stretch"
                 Click="home_Click"
-                />
-            
+                >
+                <Image Name="homeImage" Source="Assets/home.png" />
+            </Button>
+
             <Button 
                 x:Name="selectAll"
-                Content="Select All" 
                 Grid.Column="2" 
+                Margin="2"
                 HorizontalAlignment="Stretch"
                 Click="selectAll_Click"
-                />
+                >
+                <Image Name="selectallImage" Source="Assets/selectall.png" />
+                
+            </Button>
         </Grid>
         
         
