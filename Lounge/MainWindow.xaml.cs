@@ -75,6 +75,18 @@ namespace Lounge
             }
         }
 
+        private void ColorChoices_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string value = ColorChoices.SelectedValue.ToString();
+
+            loungeEngine.ColorUpdated(value);
+        }
+
+        private void ColorsReCalc(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            loungeEngine.ColorsRecalc();
+        }
+
         private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             loungeEngine.KeyPress(sender, e);
@@ -85,5 +97,6 @@ namespace Lounge
             loungeEngine.Dispose();
             loungeEngine = null;
         }
+
     }
 }

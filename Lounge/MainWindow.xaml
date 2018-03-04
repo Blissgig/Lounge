@@ -6,13 +6,15 @@
         xmlns:local="clr-namespace:Lounge"
         mc:Ignorable="d"
         Title="Lounge" 
-        Height="350" 
-        Width="525" 
+        Height="650" 
+        Width="1000" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
-        Icon="app.ico" KeyUp="Window_KeyUp" Background="{DynamicResource WindowBackgroundBrush}" 
+        Icon="app.ico" 
+        KeyUp="Window_KeyUp" 
+        Background="{DynamicResource WindowBackgroundBrush}" 
         >
 
     <Grid>
@@ -22,7 +24,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="60" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -41,26 +43,34 @@
             >
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Button 
                 x:Name="back" 
                 Grid.Column="0" 
-                Margin="2"
+                Margin="4"
                 HorizontalAlignment="Stretch" 
-                Click="back_Click" >
+                Click="back_Click" 
+                ToolTip="Back"
+                >
                 <Image Name="backImage" Source="Assets/back.png" />
             </Button>
+
             <Button 
                 x:Name="selectHome"
                 Grid.Column="1" 
-                Margin="2"
+                Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="home_Click"
+                ToolTip="Home"
                 >
                 <Image Name="homeImage" Source="Assets/home.png" />
             </Button>
@@ -68,16 +78,62 @@
             <Button 
                 x:Name="selectAll"
                 Grid.Column="2" 
-                Margin="2"
+                Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="selectAll_Click"
+                ToolTip="Select All"
                 >
                 <Image Name="selectallImage" Source="Assets/selectall.png" />
-                
             </Button>
+
+            <Button 
+                x:Name="clearAll"
+                Grid.Column="3" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="selectAll_Click"
+                ToolTip="Clear Playlists"
+                >
+                <Image Name="clearImage" Source="Assets/recycle.png" />
+            </Button>
+
+            <Button 
+                x:Name="playMedia"
+                Grid.Column="4" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="play_Click"
+                ToolTip="Play"
+                >
+                <Image Name="playImage" Source="Assets/play.png" />
+            </Button>
+
+            <Button 
+                x:Name="audioPrior"
+                Grid.Column="5" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="AudioPrior_Click"
+                ToolTip="Previous Audio"
+                >
+                <Image Name="audioPriorImage" Source="Assets/prior.png" />
+            </Button>
+
+            <Button 
+                x:Name="audioNext"
+                Grid.Column="6" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="AudioNext_Click"
+                ToolTip="Next Audio"
+                >
+                <Image Name="audioNextImage" Source="Assets/next.png" />
+            </Button>
+
+            <Slider x:Name="AudioVolume" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
         </Grid>
-        
-        
+
+
         <DataGrid 
             Name="FoldersFiles"
             Grid.Row="1" 
@@ -100,36 +156,59 @@
                 <RowDefinition Height="25" />
                 <RowDefinition Height="25" />
                 <RowDefinition Height="25" />
-                <RowDefinition Height="20" />
-                <RowDefinition Height="20" />
-                <RowDefinition Height="20" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="140" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="24" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="30" />
+
             </Grid.RowDefinitions>
+
             <Label x:Name="AudioCount" Grid.Row="0" Content="No audio added" />
             <Label x:Name="PhotoCount" Grid.Row="1" Content="No photos added" />
             <Label x:Name="VideoCount" Grid.Row="2" Content="No videos added" />
-            
-            <ComboBox x:Name="audioDevices" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged" />
-            <CheckBox x:Name="primaryMonitor" Grid.Row="4" Content="Primary Monitor" IsChecked="True" />
-            <CheckBox x:Name="LEDs" Grid.Row="5" Content="Ardunio LEDs" IsChecked="True" />
-            <CheckBox x:Name="loopAudio" Grid.Row="6" Content="Loop Audio" IsChecked="True" />
-            <ListBox x:Name="LEDPatterns" Grid.Row="7" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <ListBox x:Name="visualizations" Grid.Row="8"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <CheckBox x:Name="primaryMonitor" Grid.Row="3" Content="Primary Monitor" IsChecked="True" />
+            <CheckBox x:Name="LEDs" Grid.Row="4" Content="Ardunio LEDs" IsChecked="True" />
+            <CheckBox x:Name="loopAudio" Grid.Row="5" Content="Loop Audio" IsChecked="True" />
+            <ComboBox x:Name="audioDevices" Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged"  />
 
+            <GroupBox Grid.Row="7">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-            <Slider x:Name="AudioVolume" Grid.Row="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
-            <Label x:Name="Audio"  Grid.Row="10" Content="Audio" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <Button x:Name="AudioNext" Grid.Row="10" Content="Next" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="80" Click="AudioNext_Click" />
-            <Button x:Name="AudioPrior" Grid.Row="10" Content="Prior" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="80" Click="AudioPrior_Click" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <ComboBox x:Name="ColorChoices" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Canvas.Left="539" Canvas.Top="39" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="ColorChoices_SelectionChanged"/>
 
-            <Button x:Name="play" Grid.Row="12" Content="Play" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="play_Click" IsDefault="True" />
+                    <Label x:Name="Red"  Grid.Column="0" Grid.Row="1" Content="Red" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" RenderTransformOrigin="19.16,4.039" Canvas.Left="532" Canvas.Top="80"/>
+                    <Label x:Name="Green"  Grid.Column="0" Grid.Row="2" Content="Green" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" Canvas.Left="532" Canvas.Top="110"/>
+                    <Label x:Name="Blue" Grid.Column="0" Grid.Row="3" Content="Blue" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" Canvas.Left="532" Canvas.Top="140"/>
+
+                    <TextBox x:Name="RedLow"  Grid.Column="1" Grid.Row="1" Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="80" Width="30" KeyUp="ColorsReCalc"/>
+                    <TextBox x:Name="RedHigh"  Grid.Column="2" Grid.Row="1" Height="22" Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="80" Width="30" KeyUp="ColorsReCalc"/>
+
+                    <TextBox x:Name="GreenLow"  Grid.Column="1" Grid.Row="2"  Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="110" Width="30" KeyUp="ColorsReCalc"/>
+                    <TextBox x:Name="GreenHigh"  Grid.Column="2" Grid.Row="2" Height="22"  Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="110" Width="30" KeyUp="ColorsReCalc"/>
+
+                    <TextBox x:Name="BlueLow"  Grid.Column="1" Grid.Row="3"  Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="140" Width="30" KeyUp="ColorsReCalc"/>
+                    <TextBox x:Name="BlueHigh"  Grid.Column="2" Grid.Row="3" Height="22" Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="140" Width="30" KeyUp="ColorsReCalc"/>
+
+                </Grid>
+            </GroupBox>
+
+            <ListBox x:Name="LEDPatterns" Grid.Row="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ListBox x:Name="visualizations" Grid.Row="9"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             
         </Grid>
-        
+
     </Grid>
 </Window>

@@ -31,10 +31,10 @@ namespace Lounge
         private int minimumSceneTime = 10;  //Seconds
         private int maximumSceneTime = 20;
 
-        private Color currentColor = Colors.Red;
+        private Color currentColor = Color.FromRgb(144, 0, 0);
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
-        private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,";
+        private string acceptableMediaPhotoTypes = ""; //"*.png,*.jpg,*.jpeg,"; //TODO: write photo code.
         private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
         private string acceptableMediaPlaylistTypes = "*.m3u,"; //  '".m3u,.wpl,";
 
@@ -45,7 +45,8 @@ namespace Lounge
         private DispatcherTimer dispatchTimer;
         private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
-        private const byte BassLevel = 180;
+        private const byte BassLevel = 150;
+        private const string VISUALIZATION_ITEM = "audioVisualizationItem";
         private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
         #endregion
@@ -57,13 +58,13 @@ namespace Lounge
                 mainWindow = window;
 
                 SettingsLoad(); //Call before anything else runs.
-                
+
                 ListFiles(null);
             }
             catch (Exception ex)
             {
                 logException(ex);
-            }  
+            }
         }
 
         private void SettingsLoad()
@@ -92,7 +93,17 @@ namespace Lounge
                     }
                 }
 
+
+                mainWindow.ColorChoices.Items.Add("All");
+                mainWindow.ColorChoices.Items.Add("Black and Gray");
+                mainWindow.ColorChoices.Items.Add("Reds - All");
+                mainWindow.ColorChoices.Items.Add("Reds - Bright");
+                mainWindow.ColorChoices.Items.Add("Blues");
+                mainWindow.ColorChoices.Items.Add("Greens");
+                mainWindow.ColorChoices.Items.Add("Pinks");
+                mainWindow.ColorChoices.Items.Add("Purples");
                 
+
                 //Audio Visualization Options
                 System.Windows.Controls.CheckBox vis = new System.Windows.Controls.CheckBox();
                 vis.Content = "Bars";
@@ -104,17 +115,19 @@ namespace Lounge
 
                 if (sValue.Trim().Length > 0)
                 {
-                    for(int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
+                    for (int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
                     {
                         var x = (string)mainWindow.audioDevices.Items[i];
 
                         if (x == sValue)
                         {
-                            mainWindow.audioDevices.SelectedIndex = 0; //TODO: erroring for some reason
+                            //mainWindow.audioDevices.SelectedIndex = 0; //TODO: erroring for some reason
                             break;
                         }
                     }
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -133,19 +146,19 @@ namespace Lounge
                 else
                 {
                     mainWindow.WindowState = System.Windows.WindowState.Minimized;
-                    
+
                     AudioNext();
 
                     LoadWindows();
 
-                    UpdateColor();
+                    ColorUpdate();
 
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
                         LoadScene(mediaFrame);
                     }
 
-                    
+
                     if (AudioFiles.Count > 0)
                     {
                         VisualizationSelect();  //Must come after the frames are loaded
@@ -153,7 +166,7 @@ namespace Lounge
                         loungeAnalyzer.Enable = true;
                         loungeAnalyzer.DisplayEnable = true;
                     }
-                    
+
                     CreateTimer();
                 }
             }
@@ -321,7 +334,7 @@ namespace Lounge
                 {
                     directory = breadcrumbs[breadcrumbs.Count - 1];
                 }
-                
+
                 ListFiles(directory);
             }
         }
@@ -340,7 +353,7 @@ namespace Lounge
                 {
                     files.Add(file);
                 }
-                
+
 
                 mainWindow.AudioCount.Content = AudioFiles.Count.ToString() + " audio files";
                 mainWindow.PhotoCount.Content = PhotoFiles.Count.ToString() + " photo files";
@@ -353,7 +366,7 @@ namespace Lounge
         }
 
         private void AddRemoveMedia(FileInfo file)
-        { 
+        {
             try
             {
                 if (acceptableMediaAudioTypes.IndexOf(file.Extension) > -1)
@@ -391,7 +404,7 @@ namespace Lounge
                     mainWindow.AudioElement.Source = new Uri(file.FullName);
                     mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
                     mainWindow.AudioElement.Play();
-                    
+
 
                     currentAudio++;
 
@@ -438,15 +451,15 @@ namespace Lounge
                 {
                     breadcrumbs.Clear();
 
-                    DriveInfo drv;    
+                    DriveInfo drv;
                     string sTemp;
-                    
+
                     string[] HardDrives = Directory.GetLogicalDrives();
 
                     foreach (string HardDrive in HardDrives)
                     {
                         drv = new DriveInfo(HardDrive);
-  
+
                         if (drv.IsReady == true)
                         {
                             if (drv.VolumeLabel.Trim().Length > 0)
@@ -487,7 +500,7 @@ namespace Lounge
                         }
                     }
 
-                    foreach(FileInfo file in files)
+                    foreach (FileInfo file in files)
                     {
                         //Check if acceptable file type
                         if (acceptableMediaTypes.IndexOf(file.Extension) > -1)
@@ -517,7 +530,7 @@ namespace Lounge
         private bool IsPortrait(LoungeMediaFrame mediaFrame)
         {
             bool result = false;
- 
+
             if (mediaFrame.ActualWidth < mediaFrame.ActualHeight)
             {
                 result = true;
@@ -529,7 +542,7 @@ namespace Lounge
         private bool IsFolderValid(DirectoryInfo folder)
         {
             bool bResult = false;
-            
+
 
             if ((folder.Attributes & FileAttributes.System) == (FileAttributes.System))
             {
@@ -590,7 +603,7 @@ namespace Lounge
 
                 folders = null;
             }
-            
+
             return bResult;
         }
 
@@ -602,7 +615,7 @@ namespace Lounge
             {
                 System.OperatingSystem osInfo = System.Environment.OSVersion;
 
-                if (osInfo.Version.Major > 9)
+                if (osInfo.Version.Major > 5)
                 {
                     bReturn = true;
                 }
@@ -737,7 +750,7 @@ namespace Lounge
 
                         case 4:
                             switch (bPlayer)
-                            {  
+                            {
                                 case 0:
                                     startPoint = new Point(-mediaFrame.ActualWidth, 0);
                                     endPoint = new Point(0, 0);
@@ -764,11 +777,11 @@ namespace Lounge
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
                     mediaPlayer.startPoint = startPoint;
                     mediaPlayer.endPoint = endPoint;
-                    
+
                     int i = loungeRandom.Next(0, VideoFiles.Count);
                     FileInfo media = VideoFiles[i];
 
-                    
+
                     mediaPlayer.Width = dWidth;
                     mediaPlayer.Height = dHeight;
                     mediaPlayer.LoungeMediaElement.Height = dHeight - (dBorder * 2);
@@ -811,11 +824,15 @@ namespace Lounge
             {
                 System.Threading.Thread.Sleep(100); //To insure that the media has time to load and play before moving the player into position
 
+                //This is awful, must find a better way to most parent object.
                 var mediaElement = (MediaElement)sender;
-                var canvas = (Canvas)mediaElement.Parent;
+                var grid = (Grid)mediaElement.Parent;
+                grid = (Grid)grid.Parent;
+                var border = (Border)grid.Parent;
+                var canvas = (Canvas)border.Parent;
                 var lmp = (LoungeMediaPlayer)canvas.Parent;
                 int iMilliseconds = loungeRandom.Next(2000, 4000); //So that the players don't move in at the same time
-                
+
 
                 Storyboard storyboard = new Storyboard();
                 QuadraticEase ease = new QuadraticEase();
@@ -849,20 +866,23 @@ namespace Lounge
                 logException(ex);
             }
         }
-        
+
         private void MediaTransition(MediaElement mediaElement)
         {
             try
             {
                 var cover = new Rectangle();
-                var canvas = (Canvas)mediaElement.Parent;
+                var grid = (Grid)mediaElement.Parent;
+                grid = (Grid)grid.Parent;
+                var border = (Border)grid.Parent;
+                var canvas = (Canvas)border.Parent;
                 var lmp = (LoungeMediaPlayer)canvas.Parent;
 
 
                 cover.Height = canvas.ActualHeight;
                 cover.Width = canvas.ActualWidth;
                 cover.Fill = new SolidColorBrush(currentColor);
-                
+
                 lmp.Transition.Children.Add(cover);
                 Canvas.SetLeft(cover, 0);
                 Canvas.SetTop(cover, 0);
@@ -966,7 +986,7 @@ namespace Lounge
                 foreach (Screen scr in Screen.AllScreens)
                 {
                     workingArea = scr.WorkingArea;
-                    
+
                     //The primary monitor is only false if the checkbox is NOT selected
                     if (scr.Primary == true && (bool)mainWindow.primaryMonitor.IsChecked == false)
                     {
@@ -987,7 +1007,7 @@ namespace Lounge
                         loungeMediaFrame.Top = workingArea.Top;
                         loungeMediaFrame.Width = workingArea.Width;
                         loungeMediaFrame.Height = workingArea.Height;
-                        
+
                         loungeMediaFrame.Show();
                         mediaFrames.Add(loungeMediaFrame);
                     }
@@ -1025,8 +1045,8 @@ namespace Lounge
                 logException(ex);
             }
         }
-        
-        private void UpdateColor()
+
+        private void ColorUpdate()
         {
             try
             {
@@ -1036,7 +1056,24 @@ namespace Lounge
                 {
                     lmf.Background = background;
                     lmf.Medias.Background = background;
-                    //TODO: update visualization items and other children
+
+                    //foreach(LoungeMediaPlayer lmps in lmf.Medias.Children)
+                    //{
+                    //    lmps.border.BorderBrush = background;
+                    //}
+                    
+                    //TODO: This is temp, needs to be more generic (obviously)
+                    if (lmf.Visualizations.Children.Count > 0)
+                    {
+                        Grid grid = (Grid)lmf.Visualizations.Children[0];
+
+                        var bars = grid.Children.OfType<Border>();
+
+                        foreach (Border bar in bars)
+                        {
+                            bar.Background = background;
+                        }
+                    }
                 }
 
                 if ((bool)mainWindow.LEDs.IsChecked)
@@ -1053,19 +1090,121 @@ namespace Lounge
                         currentColor.B.ToString() + ",";
 
 
-                    //serialPort = new SerialPort("COM3", 115200);  //9600
-             
+                    serialPort = new SerialPort("COM3", 115200);  //9600
+
                     //serialPort.Open();
                     //serialPort.Write(sLEDData);
                     //serialPort.Close();
-                    //serialPort.Dispose();
-                    //serialPort = null;
+                    serialPort.Dispose();
+                    serialPort = null;
                 }
             }
             catch (Exception ex)
             {
                 logException(ex);
             }
+        }
+
+        public void ColorUpdated(string value)
+        {
+            try
+            {
+                switch (value)
+                {
+                    case "All":
+                        mainWindow.RedLow.Text = "0";
+                        mainWindow.RedHigh.Text = "255";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "255";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "255";
+                        break;
+
+                    case "Black and Gray":
+                        mainWindow.RedLow.Text = "0";
+                        mainWindow.RedHigh.Text = "48";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "48";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "48";
+                        break;
+
+                    case "Reds - All":
+                        mainWindow.RedLow.Text = "0";
+                        mainWindow.RedHigh.Text = "255";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "0";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "0";
+                        break;
+
+                    case "Reds - Bright":
+                        mainWindow.RedLow.Text = "100";
+                        mainWindow.RedHigh.Text = "255";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "0";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "0";
+                        break;
+
+                    case "Blues":
+                        mainWindow.RedLow.Text = "0";
+                        mainWindow.RedHigh.Text = "0";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "0";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "255";
+                        break;
+
+                    case "Greens":
+                        mainWindow.RedLow.Text = "0";
+                        mainWindow.RedHigh.Text = "0";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "250";
+                        mainWindow.BlueLow.Text = "0";
+                        mainWindow.BlueHigh.Text = "0";
+                        break;
+
+                    case "Pinks":
+                        mainWindow.RedLow.Text = "240";
+                        mainWindow.RedHigh.Text = "255";
+                        mainWindow.GreenLow.Text = "180";
+                        mainWindow.GreenHigh.Text = "130";
+                        mainWindow.BlueLow.Text = "133";
+                        mainWindow.BlueHigh.Text = "180";
+                        break;
+
+                    case "Purples":
+                        mainWindow.RedLow.Text = "128";
+                        mainWindow.RedHigh.Text = "255";
+                        mainWindow.GreenLow.Text = "0";
+                        mainWindow.GreenHigh.Text = "130";
+                        mainWindow.BlueLow.Text = "200";
+                        mainWindow.BlueHigh.Text = "250";
+                        break;
+                }
+
+                ColorUpdate();
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void ColorsRecalc()
+        {
+           
+            try
+            {
+                byte bR = Convert.ToByte(loungeRandom.Next(Convert.ToByte(mainWindow.RedLow.Text.Trim()), Convert.ToByte(mainWindow.RedHigh.Text.Trim())));
+                byte bG = Convert.ToByte(loungeRandom.Next(Convert.ToByte(mainWindow.GreenLow.Text.Trim()), Convert.ToByte(mainWindow.GreenHigh.Text.Trim())));
+                byte bB = Convert.ToByte(loungeRandom.Next(Convert.ToByte(mainWindow.BlueLow.Text.Trim()), Convert.ToByte(mainWindow.BlueHigh.Text.Trim())));
+                currentColor = Color.FromRgb(bR, bG, bB);
+
+                ColorUpdate();
+            }
+            catch {  }
         }
 
         public void Dispose()
@@ -1126,13 +1265,15 @@ namespace Lounge
                     case "bars":
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
-                            if (iValue < 15)
+                            //Trigger an effect when the value is high enough
+                            if (iValue < 20)
                             {
                                 if (visualData[iValue] > BassLevel)
                                 {
                                     isBoom = true;
                                 }
                             }
+
                             foreach (LoungeMediaFrame lmf in mediaFrames)
                             {
                                 grid = (Grid)lmf.Visualizations.Children[0];
@@ -1146,9 +1287,10 @@ namespace Lounge
 
                 if (isBoom)
                 {
-                    var diffInSeconds = (DateTime.Now - lastBoom).TotalSeconds;
-                    if (diffInSeconds > 2)
+                    var diffInSeconds = (DateTime.Now - lastBoom).TotalMilliseconds;
+                    if (diffInSeconds > 1500)
                     {
+                        ColorsRecalc();
                         MediaRandom();
                         lastBoom = DateTime.Now; //Reset the Boom
                     }
@@ -1190,7 +1332,8 @@ namespace Lounge
 
                                 Border bar = new Border();
                                 bar.Name = "bar" + iColumn.ToString();
-                                bar.BorderThickness = new Thickness(1);
+                                bar.Tag = VISUALIZATION_ITEM;
+                                bar.BorderThickness = new Thickness(2);
                                 bar.CornerRadius = new CornerRadius(10);
                                 bar.Margin = new Thickness(1);
                                 bar.BorderBrush = new SolidColorBrush(Colors.Black);

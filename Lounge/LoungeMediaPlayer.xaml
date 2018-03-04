@@ -8,7 +8,23 @@
              d:DesignHeight="400" 
              d:DesignWidth="400">
     <Canvas>
-        <MediaElement Name="LoungeMediaElement" 
+        <Border 
+                Name="border"
+                BorderThickness="0" 
+                BorderBrush="#FF000000" 
+                CornerRadius="4" 
+                Padding="0"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" >
+
+            <Grid>
+                <Border Name="mask" Background="Black" CornerRadius="{Binding ElementName=border, Path=CornerRadius}"/>
+                <Grid>
+                    <Grid.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=mask}"/>
+                    </Grid.OpacityMask>
+                    
+                    <MediaElement Name="LoungeMediaElement" 
                       Stretch="Fill" 
                       StretchDirection="Both"
                       LoadedBehavior="Manual"
@@ -16,7 +32,11 @@
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       />
-        
+
+                </Grid>
+            </Grid>
+        </Border>
+
         <Canvas Name="Transition" />
     </Canvas>
 </UserControl>

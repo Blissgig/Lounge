@@ -169,6 +169,16 @@
   <ItemGroup>
     <Resource Include="Assets\selectall.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\recycle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\next.png" />
+    <Resource Include="Assets\prior.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
