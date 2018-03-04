@@ -19,12 +19,8 @@ Specifications:
 
 ------------------------------------------------
 External Assets
-* Icons
- - App:    https://www.iconfinder.com/icons/173014/fire_icon#size=512 converted to ico via: http://icoconvert.com/
- - Audio:  https://www.iconfinder.com/icons/173060/music_icon#size=256
- - Photo:  https://www.iconfinder.com/icons/173070/picture_icon#size=256
- - Video:  https://www.iconfinder.com/icons/173123/video_icon#size=256
- - Folder: https://www.iconfinder.com/icons/173016/close_folder_icon#size=256
+* Icons: https://www.iconfinder.com/iconsets/snipicons
+ - Application icon converted from PNG to ICO via: http://icoconvert.com/
  
 * Code Libraries
  - Bass.Net:  https://www.nuget.org/packages/Bass.Net/  (Used for audio visualization)
@@ -32,4 +28,6 @@ External Assets
 * Hardware 
  - LEDs: https://www.amazon.com/gp/product/B01CDTECSG/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
  - Arduino Uno: https://www.amazon.com/gp/product/B008GRTSV6/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
- - Power source for Arduino, also important for the LEDs: https://www.amazon.com/gp/product/B06Y1LF8T5/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
+ - Power source for Arduino: https://www.amazon.com/gp/product/B06Y1LF8T5/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1   
+ - Power source for LEDs: https://www.amazon.com/gp/product/B01D8FLWGE/ref=oh_aui_detailpage_o04_s00?ie=UTF8&psc=1
+Note: It is VERY important that when working with an external power source like the one I linked that you be VERY careful and have knowledge of electricity.  Beware, electricity can kill.   This power was needed as I am using two sets of the LEDs listed.  I was able to just use the power supply for the Arduino when testing with just one LED strip.
