@@ -4,7 +4,6 @@ using System.Windows.Controls;
 
 namespace Lounge
 {
-
     public partial class MainWindow : Window
     {
         #region Private Members
@@ -21,12 +20,7 @@ namespace Lounge
         {
             loungeEngine = new LoungeEngine(this);
         }
-
-        private void FoldersFiles_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            loungeEngine.RowSelected();
-        }
-
+        
         private void audioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             loungeEngine.SettingSave("AudioDevice", audioDevices.SelectedValue.ToString());
@@ -57,6 +51,11 @@ namespace Lounge
             loungeEngine.SelectAll();
         }
 
+        private void clearAll_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.ClearAll();
+        }
+        
         private void AudioNext_Click(object sender, RoutedEventArgs e)
         {
             loungeEngine.AudioNext();

@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using Lounge.Models;
-using System.Collections.ObjectModel;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 using System.Windows.Threading;
@@ -16,10 +14,11 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows;
 using System.IO.Ports;
+using System.Windows.Media.Imaging;
 
 namespace Lounge
 {
-    class LoungeEngine
+    public class LoungeEngine
     {
         #region Private Members
         public MainWindow mainWindow;
@@ -37,15 +36,13 @@ namespace Lounge
         private string acceptableMediaPhotoTypes = ""; //"*.png,*.jpg,*.jpeg,"; //TODO: write photo code.
         private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
         private string acceptableMediaPlaylistTypes = "*.m3u,"; //  '".m3u,.wpl,";
-
-        private ObservableCollection<FileFolderData> filesFolders = new ObservableCollection<FileFolderData>();
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
         private List<DirectoryInfo> breadcrumbs = new List<DirectoryInfo>();
         private Random loungeRandom = new Random(DateTime.Now.Millisecond);
         private DispatcherTimer dispatchTimer;
         private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
-        private const byte BassLevel = 150;
+        private const byte BASS_LEVEL = 150;
         private const string VISUALIZATION_ITEM = "audioVisualizationItem";
         private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
@@ -211,41 +208,6 @@ namespace Lounge
             }
         }
 
-        public void RowSelected()
-        {
-            try
-            {
-                Cursor.Current = Cursors.WaitCursor;
-
-                FileFolderData ffd = (FileFolderData)mainWindow.FoldersFiles.SelectedItem;
-
-                if (ffd != null)
-                {
-                    switch (ffd.Type)
-                    {
-                        case FileFolderData.FileFolderType.Folder:
-                            breadcrumbs.Add(ffd.Folder); //This is used when the user selects "Back"
-                            ListFiles(ffd.Folder);
-                            break;
-
-                        case FileFolderData.FileFolderType.File:
-
-                            ffd.Selected = !ffd.Selected;
-                            AddRemoveMedia(ffd.File);
-                            break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logException(ex);
-            }
-            finally
-            {
-                Cursor.Current = Cursors.Default;
-            }
-        }
-
         private void LoadPlaylist(FileInfo file)
         {
             try
@@ -298,32 +260,53 @@ namespace Lounge
             }
         }
 
+        public void SelectMediaItem(FileInfo file)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void SelectAll()
         {
             try
             {
                 Cursor.Current = Cursors.WaitCursor;
 
-                foreach (FileFolderData ffd in filesFolders)
+                foreach (MediaItem mediaItem in mainWindow.mediaItems.Children)
                 {
-                    if (ffd.Type == FileFolderData.FileFolderType.File)
+                    if (mediaItem.File != null)
                     {
-                        ffd.Selected = true;
-
-                        if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
-                        {
-                            AddRemoveMedia(AudioFiles, ffd.File);
-                        }
-                        else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
-                        {
-                            AddRemoveMedia(PhotoFiles, ffd.File);
-                        }
-                        else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
-                        {
-                            AddRemoveMedia(VideoFiles, ffd.File);
-                        }
+                        //mediaItem
                     }
                 }
+
+               // foreach (FileFolderData ffd in filesFolders)
+               //{
+
+                    //if (ffd.Type == FileFolderData.FileFolderType.File)
+                    //{
+                    //    ffd.Selected = true;
+
+                    //    if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
+                    //    {
+                    //        AddRemoveMedia(AudioFiles, ffd.File);
+                    //    }
+                    //    else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
+                    //    {
+                    //        AddRemoveMedia(PhotoFiles, ffd.File);
+                    //    }
+                    //    else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
+                    //    {
+                    //        AddRemoveMedia(VideoFiles, ffd.File);
+                    //    }
+                    //}
+                    //}
             }
             catch (Exception ex)
             {
@@ -332,6 +315,24 @@ namespace Lounge
             finally
             {
                 Cursor.Current = Cursors.Default;
+            }
+        }
+
+        public void ClearAll()
+        {
+            try
+            {
+                AudioFiles.Clear();
+                VideoFiles.Clear();
+                PhotoFiles.Clear();
+
+                mainWindow.AudioCount.Content = "0 audio files";
+                mainWindow.PhotoCount.Content = "0 photo files";
+                mainWindow.VideoCount.Content = "0 video files";
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
             }
         }
 
@@ -453,19 +454,19 @@ namespace Lounge
         {
             mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
         }
-
-        public void ListFiles(DirectoryInfo directory)
+        
+        public void ListFiles(DirectoryInfo Folder)
         {
             try
             {
                 Cursor.Current = Cursors.WaitCursor;
+                
+                mainWindow.mediaItems.Children.Clear();
+                
+                MediaItem mediaItem;
 
                 //In case no starting directory, assume a list of drives
-                filesFolders.Clear();
-
-                FileFolderData ffd;
-
-                if (directory == null)
+                if (Folder == null)
                 {
                     breadcrumbs.Clear();
 
@@ -488,33 +489,25 @@ namespace Lounge
                             {
                                 sTemp = drv.Name;
                             }
-
-                            ffd = new FileFolderData();
-                            ffd.Type = FileFolderData.FileFolderType.Folder;
-                            ffd.Date = DateTime.Now;
-                            ffd.Name = sTemp;
-                            ffd.Folder = new DirectoryInfo(drv.Name);
-
-                            filesFolders.Add(ffd);
+                            
+                            mediaItem = new MediaItem(this, new DirectoryInfo(drv.Name), sTemp);
+                            mainWindow.mediaItems.Children.Add(mediaItem);
                         }
                     }
                 }
                 else
                 {
-                    DirectoryInfo[] folders = directory.GetDirectories();
-                    FileInfo[] files = directory.GetFiles();
+                    breadcrumbs.Add(Folder);
+
+                    DirectoryInfo[] folders = Folder.GetDirectories();
+                    FileInfo[] files = Folder.GetFiles();
                     string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes + acceptableMediaPlaylistTypes;
                     foreach (DirectoryInfo folder in folders)
                     {
                         if (IsFolderValid(folder))
                         {
-                            ffd = new FileFolderData();
-                            ffd.Type = FileFolderData.FileFolderType.Folder;
-                            ffd.Date = Directory.GetCreationTime(folder.FullName);
-                            ffd.Name = folder.Name;
-                            ffd.Folder = folder;
-
-                            filesFolders.Add(ffd);
+                            mediaItem = new MediaItem(this, folder, folder.Name);
+                            mainWindow.mediaItems.Children.Add(mediaItem);
                         }
                     }
 
@@ -523,26 +516,45 @@ namespace Lounge
                         //Check if acceptable file type
                         if (acceptableMediaTypes.IndexOf(file.Extension) > -1)
                         {
-                            ffd = new FileFolderData();
-                            ffd.Type = FileFolderData.FileFolderType.File;
-                            ffd.Date = File.GetCreationTime(file.FullName);
-                            ffd.Name = file.Name;
-                            ffd.File = file;
-                            filesFolders.Add(ffd);
+                            mediaItem = new MediaItem(this, file, System.IO.Path.GetFileNameWithoutExtension(file.Name));
+                            mediaItem.Icon.Source = new BitmapImage(new Uri(IconType(file), UriKind.Relative));
+                            mainWindow.mediaItems.Children.Add(mediaItem);
                         }
                     }
                 }
-
-                mainWindow.FoldersFiles.ItemsSource = filesFolders;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                logException(ex);
             }
             finally
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private string IconType(FileInfo file)
+        {
+            string sReturn = "Assets/Folder.png";
+
+            if (acceptableMediaAudioTypes.Contains(file.Extension) == true)
+            {
+                sReturn = "Assets/audio.png";
+            }
+            else if (acceptableMediaPhotoTypes.Contains(file.Extension) == true)
+            {
+                sReturn = "Assets/photo.png";
+            }
+            else if (acceptableMediaPlaylistTypes.Contains(file.Extension) == true)
+            {
+                sReturn = "Assets/playlist.png";
+            }
+            else if (acceptableMediaVideoTypes.Contains(file.Extension) == true)
+            {
+                sReturn = "Assets/video.png";
+            }
+
+            return sReturn;
         }
 
         private bool IsPortrait(LoungeMediaFrame mediaFrame)
@@ -1293,7 +1305,7 @@ namespace Lounge
                             //Trigger an effect when the value is high enough
                             if (iValue < 20)
                             {
-                                if (visualData[iValue] > BassLevel)
+                                if (visualData[iValue] > BASS_LEVEL)
                                 {
                                     isBoom = true;
                                 }

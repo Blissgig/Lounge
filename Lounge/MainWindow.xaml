@@ -59,25 +59,25 @@
             </Grid.ColumnDefinitions>
 
             <Button 
-                x:Name="back" 
-                Grid.Column="0" 
-                Margin="4"
-                HorizontalAlignment="Stretch" 
-                Click="back_Click" 
-                ToolTip="Back"
-                >
-                <Image Name="backImage" Source="Assets/back.png" />
-            </Button>
-
-            <Button 
                 x:Name="selectHome"
-                Grid.Column="1" 
+                Grid.Column="0" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="home_Click"
                 ToolTip="Home"
                 >
                 <Image Name="homeImage" Source="Assets/home.png" />
+            </Button>
+            
+            <Button 
+                x:Name="back" 
+                Grid.Column="1" 
+                Margin="4"
+                HorizontalAlignment="Stretch" 
+                Click="back_Click" 
+                ToolTip="Back"
+                >
+                <Image Name="backImage" Source="Assets/back.png" />
             </Button>
 
             <Button 
@@ -96,7 +96,7 @@
                 Grid.Column="3" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="selectAll_Click"
+                Click="clearAll_Click"
                 ToolTip="Clear Playlists"
                 >
                 <Image Name="clearImage" Source="Assets/recycle.png" />
@@ -288,21 +288,13 @@
 
         </Grid>
 
-        <DataGrid 
-            Name="FoldersFiles"
-            Grid.Row="1" 
-            AutoGenerateColumns="False"
-            Margin="10,10,10,10" 
-            VerticalAlignment="Top" 
-            SelectionChanged="FoldersFiles_SelectionChanged">
+        <ScrollViewer 
+            Grid.Row="1"
+            HorizontalScrollBarVisibility="Disabled" 
+            VerticalScrollBarVisibility="Auto">
+            <WrapPanel Name="mediaItems"
+                       Orientation="Horizontal" />
 
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Selected" Binding="{Binding Selected}" />
-                <DataGridTextColumn Header="Icon" Binding="{Binding Icon}"/>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
-                <DataGridTextColumn Header="Date" Binding="{Binding Date}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-
+        </ScrollViewer>
     </Grid>
 </Window>
