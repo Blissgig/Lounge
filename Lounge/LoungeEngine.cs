@@ -159,7 +159,7 @@ namespace Lounge
             {
                 if ((AudioFiles.Count() == 0) && (VideoFiles.Count() == 0) && (PhotoFiles.Count() == 0))
                 {
-                    System.Windows.Forms.MessageBox.Show("You have to add SOME media to play", "No media selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    System.Windows.Forms.MessageBox.Show("Please add some media", "No media selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -793,6 +793,8 @@ namespace Lounge
                     }
 
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
+                    mediaPlayer.border.BorderBrush = new SolidColorBrush(currentColor);
+                    mediaPlayer.mask.Background = new SolidColorBrush(currentColor);
                     mediaPlayer.startPoint = startPoint;
                     mediaPlayer.endPoint = endPoint;
 
@@ -1075,10 +1077,10 @@ namespace Lounge
                     lmf.Background = background;
                     lmf.Medias.Background = background;
 
-                    //foreach(LoungeMediaPlayer lmps in lmf.Medias.Children)
-                    //{
-                    //    lmps.border.BorderBrush = background;
-                    //}
+                    foreach(LoungeMediaPlayer lmps in lmf.Medias.Children)
+                    {
+                        lmps.border.BorderBrush = background;
+                    }
                     
                     //TODO: This is temp, needs to be more generic (obviously)
                     if (lmf.Visualizations.Children.Count > 0)
@@ -1099,14 +1101,19 @@ namespace Lounge
                     //- UPDATE LEDs -
                     //Pattern: Visualization, Brightness (0 - 255), Glitter Percentage, List of colors
                     //Example: 0,80,255,0,0,
+                    //string sLEDData =
+                    //    "0," +
+                    //    "48," +
+                    //    "80," +
+                    //    currentColor.R.ToString() + "," +
+                    //    currentColor.G.ToString() + "," +
+                    //    currentColor.B.ToString() + ",";
+
+                    //To start, just sending the color data
                     string sLEDData =
-                        "0," +
-                        "48," +
-                        "80," +
                         currentColor.R.ToString() + "," +
                         currentColor.G.ToString() + "," +
                         currentColor.B.ToString() + ",";
-
 
                     serialPort = new SerialPort("COM3", 115200);  //9600
 
@@ -1306,7 +1313,7 @@ namespace Lounge
                 if (isBoom)
                 {
                     var diffInSeconds = (DateTime.Now - lastBoom).TotalMilliseconds;
-                    if (diffInSeconds > 1500)
+                    if (diffInSeconds > 888)
                     {
                         ColorsRecalc();
                         MediaRandom();
@@ -1459,7 +1466,7 @@ namespace Lounge
     internal class Analyzer
     {
         private bool _enable;               //enabled status
-        private DispatcherTimer dispatchTimer;         //timer that refreshes the display
+        private DispatcherTimer dispatchTimer;  //timer that refreshes the display
         private byte timerTime = 25;
         public float[] _fft;               //buffer for fft data
         private WASAPIPROC _process;        //callback function to obtain data
@@ -1469,7 +1476,7 @@ namespace Lounge
         private List<AudioDeviceInfo> AudioDevices = new List<AudioDeviceInfo>();     //NEW non-UI device list
         private bool _initialized;          //initialized flag
         private int devindex;               //used device index
-        public int spectrumLines = 64;            // number of spectrum lines
+        public int spectrumLines = 64;      //number of spectrum lines
         private LoungeEngine loungeEngine;
 
         public Analyzer(LoungeEngine loungeEngine)
@@ -1626,7 +1633,7 @@ namespace Lounge
                 }
 
             }
-            catch (Exception)
+            catch 
             {
                 //eat the error, I do not care atm
             }

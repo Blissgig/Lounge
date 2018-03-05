@@ -54,8 +54,8 @@
                 <ColumnDefinition Width="140" />
                 <ColumnDefinition Width="160" />
                 <ColumnDefinition Width="160" />
-                <ColumnDefinition Width="140" />
-                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="130" />
+                <ColumnDefinition Width="130" />
             </Grid.ColumnDefinitions>
 
             <Button 
@@ -161,6 +161,7 @@
             <ListBox x:Name="LEDPatterns" 
                      ToolTip="LED Patterns"
                      Grid.Column="8" 
+                     Margin="10, 0, 10, 0"
                      VerticalAlignment="Stretch" 
                      HorizontalAlignment="Stretch" />
 
@@ -202,12 +203,14 @@
                 <TextBox x:Name="RedLow" 
                          Grid.Column="1" 
                          Grid.Row="1" 
+                         Margin="0, 4, 10, 0"
                          Text="0" 
                          KeyUp="ColorsReCalc"/>
                 
                 <TextBox x:Name="RedHigh" 
                          Grid.Column="2" 
                          Grid.Row="1" 
+                         Margin="0, 4, 0, 0"
                          Text="255" 
                          KeyUp="ColorsReCalc"/>
 
@@ -228,11 +231,33 @@
                 <Label x:Name="Green"  Grid.Column="0" Grid.Row="0" Content="Green" HorizontalAlignment="Left" VerticalAlignment="Top" />
                 <Label x:Name="Blue" Grid.Column="0" Grid.Row="1" Content="Blue" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                <TextBox x:Name="GreenLow"  Grid.Column="1" Grid.Row="0" Text="0" KeyUp="ColorsReCalc"/>
-                <TextBox x:Name="GreenHigh" Grid.Column="2" Grid.Row="0" Text="255" KeyUp="ColorsReCalc"/>
+                <TextBox x:Name="GreenLow" 
+                         Grid.Column="1" 
+                         Grid.Row="0" 
+                         Margin="0, 0, 10, 4"
+                         Text="0" 
+                         KeyUp="ColorsReCalc"/>
+                
+                <TextBox x:Name="GreenHigh" 
+                         Grid.Column="2" 
+                         Grid.Row="0" 
+                         Margin="0, 0, 10, 4"
+                         Text="255" 
+                         KeyUp="ColorsReCalc"/>
 
-                <TextBox x:Name="BlueLow"  Grid.Column="1" Grid.Row="1" Text="0" KeyUp="ColorsReCalc"/>
-                <TextBox x:Name="BlueHigh" Grid.Column="2" Grid.Row="1" Text="255" KeyUp="ColorsReCalc"/>
+                <TextBox x:Name="BlueLow" 
+                         Grid.Column="1" 
+                         Grid.Row="1"
+                         Margin="0, 4, 10, 0"
+                         Text="0" 
+                         KeyUp="ColorsReCalc"/>
+                
+                <TextBox x:Name="BlueHigh" 
+                         Grid.Column="2" 
+                         Grid.Row="1" 
+                         Margin="0, 4, 10, 0"
+                         Text="255" 
+                         KeyUp="ColorsReCalc"/>
             </Grid>
             
             <Grid Grid.Column="12"
