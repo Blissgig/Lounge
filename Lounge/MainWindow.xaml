@@ -7,12 +7,12 @@
         mc:Ignorable="d"
         Title="Lounge" 
         Height="650" 
-        Width="1000" 
+        Width="1400" 
+        Icon="app.ico" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
-        Icon="app.ico" 
         KeyUp="Window_KeyUp" 
         Background="{DynamicResource WindowBackgroundBrush}" 
         >
@@ -20,7 +20,6 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -50,7 +49,13 @@
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="140" />
+                <ColumnDefinition Width="140" />
             </Grid.ColumnDefinitions>
 
             <Button 
@@ -130,9 +135,133 @@
                 <Image Name="audioNextImage" Source="Assets/next.png" />
             </Button>
 
-            <Slider x:Name="AudioVolume" Grid.Column="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Value=".5" Minimum="0" Maximum="1" ValueChanged="AudioVolume_ValueChanged"  />
-        </Grid>
+            <Grid Grid.Column="7"
+                  Margin="10, 0, 10, 4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
+                <Slider x:Name="AudioVolume" 
+                        ToolTip="Audio Volume"
+                        Grid.Row="0" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch" 
+                        Value=".5" 
+                        Minimum="0" 
+                        Maximum="1" 
+                        ValueChanged="AudioVolume_ValueChanged"  />
+                <ComboBox x:Name="audioDevices" 
+                          Grid.Row="1" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch" 
+                          SelectionChanged="audioDevices_SelectionChanged"  />
+            </Grid>
+
+            <ListBox x:Name="LEDPatterns" 
+                     ToolTip="LED Patterns"
+                     Grid.Column="8" 
+                     VerticalAlignment="Stretch" 
+                     HorizontalAlignment="Stretch" />
+
+            <ListBox x:Name="visualizations"
+                     ToolTip="Audio Visualizations"
+                     Grid.Column="9" 
+                     HorizontalAlignment="Stretch" 
+                     VerticalAlignment="Stretch" />
+
+            <Grid Grid.Column="10"
+                  Margin="10, 0, 10, 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox x:Name="ColorChoices" 
+                          Grid.Column="0" 
+                          Grid.Row="0" 
+                          Grid.ColumnSpan="3" 
+                          HorizontalAlignment="Stretch" 
+                          VerticalAlignment="Stretch" 
+                          SelectionChanged="ColorChoices_SelectionChanged"/>
+
+                <Label x:Name="Red" 
+                       Grid.Row="1" 
+                       Grid.Column="0" 
+                       Content="Red" 
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Top" 
+                       />
+
+                <TextBox x:Name="RedLow" 
+                         Grid.Column="1" 
+                         Grid.Row="1" 
+                         Text="0" 
+                         KeyUp="ColorsReCalc"/>
+                
+                <TextBox x:Name="RedHigh" 
+                         Grid.Column="2" 
+                         Grid.Row="1" 
+                         Text="255" 
+                         KeyUp="ColorsReCalc"/>
+
+            </Grid>
+
+            <Grid Grid.Column="11">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="Green"  Grid.Column="0" Grid.Row="0" Content="Green" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <Label x:Name="Blue" Grid.Column="0" Grid.Row="1" Content="Blue" HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+                <TextBox x:Name="GreenLow"  Grid.Column="1" Grid.Row="0" Text="0" KeyUp="ColorsReCalc"/>
+                <TextBox x:Name="GreenHigh" Grid.Column="2" Grid.Row="0" Text="255" KeyUp="ColorsReCalc"/>
+
+                <TextBox x:Name="BlueLow"  Grid.Column="1" Grid.Row="1" Text="0" KeyUp="ColorsReCalc"/>
+                <TextBox x:Name="BlueHigh" Grid.Column="2" Grid.Row="1" Text="255" KeyUp="ColorsReCalc"/>
+            </Grid>
+            
+            <Grid Grid.Column="12"
+                  Margin="10, 0, 10, 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <CheckBox x:Name="primaryMonitor" Grid.Row="0" Content="Primary Monitor" IsChecked="True" />
+                <CheckBox x:Name="LEDs" Grid.Row="1" Content="Ardunio LEDs" IsChecked="True" />
+                <CheckBox x:Name="loopAudio" Grid.Row="2" Content="Loop Audio" IsChecked="True" />
+            </Grid>
+            
+            <Grid Grid.Column="13"
+                  Margin="10, 0, 10, 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Label x:Name="AudioCount" Grid.Row="0" Content="0 audio added" />
+                <Label x:Name="PhotoCount" Grid.Row="1" Content="0 photos added" />
+                <Label x:Name="VideoCount" Grid.Row="2" Content="0 videos added" />
+            </Grid>
+
+        </Grid>
 
         <DataGrid 
             Name="FoldersFiles"
@@ -149,66 +278,6 @@
                 <DataGridTextColumn Header="Date" Binding="{Binding Date}"/>
             </DataGrid.Columns>
         </DataGrid>
-
-        <Grid Name="settings" Grid.Row="1" Grid.Column="1" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="25" />
-                <RowDefinition Height="140" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-
-            </Grid.RowDefinitions>
-
-            <Label x:Name="AudioCount" Grid.Row="0" Content="No audio added" />
-            <Label x:Name="PhotoCount" Grid.Row="1" Content="No photos added" />
-            <Label x:Name="VideoCount" Grid.Row="2" Content="No videos added" />
-            <CheckBox x:Name="primaryMonitor" Grid.Row="3" Content="Primary Monitor" IsChecked="True" />
-            <CheckBox x:Name="LEDs" Grid.Row="4" Content="Ardunio LEDs" IsChecked="True" />
-            <CheckBox x:Name="loopAudio" Grid.Row="5" Content="Loop Audio" IsChecked="True" />
-            <ComboBox x:Name="audioDevices" Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="audioDevices_SelectionChanged"  />
-
-            <GroupBox Grid.Row="7">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="30" />
-                    </Grid.RowDefinitions>
-                    <ComboBox x:Name="ColorChoices" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Canvas.Left="539" Canvas.Top="39" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="ColorChoices_SelectionChanged"/>
-
-                    <Label x:Name="Red"  Grid.Column="0" Grid.Row="1" Content="Red" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" RenderTransformOrigin="19.16,4.039" Canvas.Left="532" Canvas.Top="80"/>
-                    <Label x:Name="Green"  Grid.Column="0" Grid.Row="2" Content="Green" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" Canvas.Left="532" Canvas.Top="110"/>
-                    <Label x:Name="Blue" Grid.Column="0" Grid.Row="3" Content="Blue" HorizontalAlignment="Left" Height="24" VerticalAlignment="Top" Width="30" Canvas.Left="532" Canvas.Top="140"/>
-
-                    <TextBox x:Name="RedLow"  Grid.Column="1" Grid.Row="1" Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="80" Width="30" KeyUp="ColorsReCalc"/>
-                    <TextBox x:Name="RedHigh"  Grid.Column="2" Grid.Row="1" Height="22" Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="80" Width="30" KeyUp="ColorsReCalc"/>
-
-                    <TextBox x:Name="GreenLow"  Grid.Column="1" Grid.Row="2"  Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="110" Width="30" KeyUp="ColorsReCalc"/>
-                    <TextBox x:Name="GreenHigh"  Grid.Column="2" Grid.Row="2" Height="22"  Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="110" Width="30" KeyUp="ColorsReCalc"/>
-
-                    <TextBox x:Name="BlueLow"  Grid.Column="1" Grid.Row="3"  Height="22" Canvas.Left="573" TextWrapping="Wrap" Text="0" Canvas.Top="140" Width="30" KeyUp="ColorsReCalc"/>
-                    <TextBox x:Name="BlueHigh"  Grid.Column="2" Grid.Row="3" Height="22" Canvas.Left="610" TextWrapping="Wrap" Text="255" Canvas.Top="140" Width="30" KeyUp="ColorsReCalc"/>
-
-                </Grid>
-            </GroupBox>
-
-            <ListBox x:Name="LEDPatterns" Grid.Row="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <ListBox x:Name="visualizations" Grid.Row="9"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            
-        </Grid>
 
     </Grid>
 </Window>

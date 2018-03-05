@@ -110,6 +110,24 @@ namespace Lounge
                 vis.IsChecked = true;
                 mainWindow.visualizations.Items.Add(vis);
 
+
+                //TEMP
+                vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Champagne";
+                vis.IsChecked = false;
+                mainWindow.visualizations.Items.Add(vis);
+
+                vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Float";
+                vis.IsChecked = false;
+                mainWindow.visualizations.Items.Add(vis);
+
+                vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Pop";
+                vis.IsChecked = false;
+                mainWindow.visualizations.Items.Add(vis);
+                //end temp
+
                 //Set the users default audio device
                 string sValue = SettingGet("AudioDevice");
 
