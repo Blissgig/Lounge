@@ -197,7 +197,7 @@
                        Grid.Column="0" 
                        Content="Red" 
                        HorizontalAlignment="Left" 
-                       VerticalAlignment="Top" 
+                       VerticalAlignment="Center" 
                        />
 
                 <TextBox x:Name="RedLow" 
@@ -205,6 +205,7 @@
                          Grid.Row="1" 
                          Margin="0, 4, 10, 0"
                          Text="0" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
                 
                 <TextBox x:Name="RedHigh" 
@@ -212,6 +213,7 @@
                          Grid.Row="1" 
                          Margin="0, 4, 0, 0"
                          Text="255" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
 
             </Grid>
@@ -228,14 +230,15 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="Green"  Grid.Column="0" Grid.Row="0" Content="Green" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <Label x:Name="Blue" Grid.Column="0" Grid.Row="1" Content="Blue" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <Label x:Name="Green"  Grid.Column="0" Grid.Row="0" Content="Green" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <Label x:Name="Blue" Grid.Column="0" Grid.Row="1" Content="Blue" HorizontalAlignment="Left" VerticalAlignment="Center" />
 
                 <TextBox x:Name="GreenLow" 
                          Grid.Column="1" 
                          Grid.Row="0" 
                          Margin="0, 0, 10, 4"
                          Text="0" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
                 
                 <TextBox x:Name="GreenHigh" 
@@ -243,6 +246,7 @@
                          Grid.Row="0" 
                          Margin="0, 0, 10, 4"
                          Text="255" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
 
                 <TextBox x:Name="BlueLow" 
@@ -250,6 +254,7 @@
                          Grid.Row="1"
                          Margin="0, 4, 10, 0"
                          Text="0" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
                 
                 <TextBox x:Name="BlueHigh" 
@@ -257,6 +262,7 @@
                          Grid.Row="1" 
                          Margin="0, 4, 10, 0"
                          Text="255" 
+                         TextAlignment="Center"
                          KeyUp="ColorsReCalc"/>
             </Grid>
             

@@ -264,7 +264,7 @@ namespace Lounge
         {
             try
             {
-
+                AddRemoveMedia(file);
             }
             catch (Exception ex)
             {
@@ -272,7 +272,7 @@ namespace Lounge
             }
         }
 
-        public void SelectAll()
+        public void SelectAll(bool select = true)
         {
             try
             {
@@ -282,31 +282,10 @@ namespace Lounge
                 {
                     if (mediaItem.File != null)
                     {
-                        //mediaItem
+                        mediaItem.Selected = select;
+                        AddRemoveMedia(mediaItem.File);
                     }
                 }
-
-               // foreach (FileFolderData ffd in filesFolders)
-               //{
-
-                    //if (ffd.Type == FileFolderData.FileFolderType.File)
-                    //{
-                    //    ffd.Selected = true;
-
-                    //    if (acceptableMediaAudioTypes.IndexOf(ffd.File.Extension) > -1)
-                    //    {
-                    //        AddRemoveMedia(AudioFiles, ffd.File);
-                    //    }
-                    //    else if (acceptableMediaPhotoTypes.IndexOf(ffd.File.Extension) > -1)
-                    //    {
-                    //        AddRemoveMedia(PhotoFiles, ffd.File);
-                    //    }
-                    //    else if (acceptableMediaVideoTypes.IndexOf(ffd.File.Extension) > -1)
-                    //    {
-                    //        AddRemoveMedia(VideoFiles, ffd.File);
-                    //    }
-                    //}
-                    //}
             }
             catch (Exception ex)
             {
@@ -325,6 +304,8 @@ namespace Lounge
                 AudioFiles.Clear();
                 VideoFiles.Clear();
                 PhotoFiles.Clear();
+
+                SelectAll(false);
 
                 mainWindow.AudioCount.Content = "0 audio files";
                 mainWindow.PhotoCount.Content = "0 photo files";
