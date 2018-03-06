@@ -48,13 +48,12 @@ namespace Lounge
         private string currentVisualization = "";
         #endregion
 
+        #region Methods
         public LoungeEngine(MainWindow window)
         {
             try
             {
                 mainWindow = window;
-
-                SettingsLoad(); //Call before anything else runs.
 
                 ListFiles(null);
             }
@@ -64,7 +63,7 @@ namespace Lounge
             }
         }
 
-        private void SettingsLoad()
+        public void SettingsLoad()
         {
             try
             {
@@ -89,8 +88,7 @@ namespace Lounge
                         acceptableMediaVideoTypes += "*.mkv,";
                     }
                 }
-
-
+                
                 mainWindow.ColorChoices.Items.Add("All");
                 mainWindow.ColorChoices.Items.Add("Black and Gray");
                 mainWindow.ColorChoices.Items.Add("Reds - All");
@@ -108,26 +106,26 @@ namespace Lounge
                 mainWindow.visualizations.Items.Add(vis);
 
 
-                //TEMP
-                vis = new System.Windows.Controls.CheckBox();
-                vis.Content = "Champagne";
-                vis.IsChecked = false;
-                mainWindow.visualizations.Items.Add(vis);
+                ////TEMP
+                //vis = new System.Windows.Controls.CheckBox();
+                //vis.Content = "Champagne";
+                //vis.IsChecked = false;
+                //mainWindow.visualizations.Items.Add(vis);
 
-                vis = new System.Windows.Controls.CheckBox();
-                vis.Content = "Float";
-                vis.IsChecked = false;
-                mainWindow.visualizations.Items.Add(vis);
+                //vis = new System.Windows.Controls.CheckBox();
+                //vis.Content = "Float";
+                //vis.IsChecked = false;
+                //mainWindow.visualizations.Items.Add(vis);
 
-                vis = new System.Windows.Controls.CheckBox();
-                vis.Content = "Pop";
-                vis.IsChecked = false;
-                mainWindow.visualizations.Items.Add(vis);
-                //end temp
+                //vis = new System.Windows.Controls.CheckBox();
+                //vis.Content = "Pop";
+                //vis.IsChecked = false;
+                //mainWindow.visualizations.Items.Add(vis);
+                ////end temp
 
                 //Set the users default audio device
                 string sValue = SettingGet("AudioDevice");
-
+                
                 if (sValue.Trim().Length > 0)
                 {
                     for (int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
@@ -136,7 +134,7 @@ namespace Lounge
 
                         if (x == sValue)
                         {
-                            //mainWindow.audioDevices.SelectedIndex = 0; //TODO: erroring for some reason
+                            mainWindow.audioDevices.SelectedIndex = i;
                             break;
                         }
                     }
@@ -277,7 +275,7 @@ namespace Lounge
             try
             {
                 Cursor.Current = Cursors.WaitCursor;
-
+                
                 foreach (MediaItem mediaItem in mainWindow.mediaItems.Children)
                 {
                     if (mediaItem.File != null)
@@ -662,10 +660,54 @@ namespace Lounge
             return sAppName;
         }
 
+        public void AppInfo()
+        {
+            System.Windows.Forms.MessageBox.Show(
+                "This application is copyright © 2018 by James Rose" + 
+                Environment.NewLine +
+                "Source code is available at Github.com/Blissgig", 
+                applicationName + " info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void UnloadScene(LoungeMediaFrame mediaFrame)
+        {
+            try
+            {
+                if (mediaFrame.Medias.Children.Count > 0)
+                {
+                    Storyboard storyboard = new Storyboard();
+
+                    foreach(LoungeMediaPlayer mediaPlayer in mediaFrame.Medias.Children)
+                    {
+                        DoubleAnimation animation = new DoubleAnimation();
+                        animation.Duration = TimeSpan.FromMilliseconds(1500);
+                        animation.From = 1.0;
+                        animation.To = 0.0;
+
+                        Storyboard.SetTarget(mediaPlayer, animation);
+                        Storyboard.SetTargetProperty(mediaPlayer, new PropertyPath(System.Windows.Controls.UserControl.OpacityProperty));
+                        storyboard.Children.Add(animation);
+                    }
+
+                    storyboard.Completed += (sndr, evts) =>
+                    {
+                        mediaFrame.Medias.Children.Clear();
+                    };
+                    storyboard.Begin();
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         private void LoadScene(LoungeMediaFrame mediaFrame)
         {
             try
             {
+                UnloadScene(mediaFrame);
+
                 byte bPlayerCount = 0;
                 double dHeight = 400;
                 double dWidth = 400;
@@ -680,12 +722,12 @@ namespace Lounge
                 if (IsPortrait(mediaFrame))
                 {
                     //Portrait mode can have 2 or 3 media players
-                    //playerCount.Add(2);
+                    playerCount.Add(2);
                     playerCount.Add(3);
                 }
                 else
                 {
-                    //playerCount.Add(1);
+                    playerCount.Add(1);
                     playerCount.Add(4);
                 }
 
@@ -1012,7 +1054,7 @@ namespace Lounge
 
                     if (bMonitor == true)
                     {
-                        LoungeMediaFrame loungeMediaFrame = new LoungeMediaFrame();
+                        LoungeMediaFrame loungeMediaFrame = new LoungeMediaFrame(this);
                         loungeMediaFrame.Name = "Display" + scr.DeviceName.Replace('\\', '_').Replace('.', 'A');
 
 
@@ -1030,6 +1072,21 @@ namespace Lounge
             {
                 throw;
             }
+        }
+
+        public void UnloadWindow(string name)
+        {
+            try
+            {
+                LoungeMediaFrame mediaFrame = mediaFrames.Find(r => r.Name == name);
+
+                if (mediaFrame != null)
+                {
+                    mediaFrames.Remove(mediaFrame);
+                }
+            }
+            catch 
+            {  }
         }
 
         private void CreateTimer()
@@ -1447,7 +1504,7 @@ namespace Lounge
             }
             catch { }
         }
-
+        #endregion
     }
 
     public class AudioDeviceInfo
@@ -1649,5 +1706,4 @@ namespace Lounge
             catch { }
         }
     }
-
 }

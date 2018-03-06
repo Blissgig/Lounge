@@ -6,15 +6,27 @@ namespace Lounge
 {
     public partial class LoungeMediaFrame : Window
     {
+        private LoungeEngine loungeEngine;
+
         public LoungeMediaFrame()
         {
             InitializeComponent();
         }
 
+        public LoungeMediaFrame(LoungeEngine engine)
+        {
+            InitializeComponent();
+            loungeEngine = engine;
+        }
+
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            //TODO: pass keyboard keys to engine.  Will need a copy of engine to call
-            //loungeEngine.KeyPress(sender, e);
+            loungeEngine.KeyPress(sender, e);
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            loungeEngine.UnloadWindow(this.Name);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Lounge
 
         #endregion
 
+        #region Methods
         public MainWindow()
         {
             InitializeComponent();
@@ -19,8 +20,10 @@ namespace Lounge
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             loungeEngine = new LoungeEngine(this);
+            
+            Dispatcher.BeginInvoke(new System.Action(() => loungeEngine.SettingsLoad()), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
-        
+
         private void audioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             loungeEngine.SettingSave("AudioDevice", audioDevices.SelectedValue.ToString());
@@ -46,6 +49,11 @@ namespace Lounge
             loungeEngine.AudioNext();
         }
         
+        private void appInfo_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.AppInfo();
+        }
+
         private void selectAll_Click(object sender, RoutedEventArgs e)
         {
             loungeEngine.SelectAll();
@@ -96,6 +104,7 @@ namespace Lounge
             loungeEngine.Dispose();
             loungeEngine = null;
         }
+        #endregion
 
     }
 }

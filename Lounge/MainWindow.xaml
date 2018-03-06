@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Lounge" 
         Height="650" 
-        Width="1400" 
+        Width="1500" 
         Icon="app.ico" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
@@ -42,6 +42,7 @@
             >
 
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
@@ -135,7 +136,18 @@
                 <Image Name="audioNextImage" Source="Assets/next.png" />
             </Button>
 
-            <Grid Grid.Column="7"
+            <Button 
+                x:Name="appInfot"
+                Grid.Column="7" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="appInfo_Click"
+                ToolTip="Next Audio"
+                >
+                <Image Name="appInfoImage" Source="Assets/info.png" />
+            </Button>
+            
+            <Grid Grid.Column="8"
                   Margin="10, 0, 10, 4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -160,18 +172,19 @@
 
             <ListBox x:Name="LEDPatterns" 
                      ToolTip="LED Patterns"
-                     Grid.Column="8" 
-                     Margin="10, 0, 10, 0"
+                     Grid.Column="9" 
+                     Margin="5, 0, 5, 0"
                      VerticalAlignment="Stretch" 
                      HorizontalAlignment="Stretch" />
 
             <ListBox x:Name="visualizations"
                      ToolTip="Audio Visualizations"
-                     Grid.Column="9" 
+                     Grid.Column="10" 
+                     Margin="5, 0, 5, 0"
                      HorizontalAlignment="Stretch" 
                      VerticalAlignment="Stretch" />
 
-            <Grid Grid.Column="10"
+            <Grid Grid.Column="11"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -218,7 +231,7 @@
 
             </Grid>
 
-            <Grid Grid.Column="11">
+            <Grid Grid.Column="12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -266,7 +279,7 @@
                          KeyUp="ColorsReCalc"/>
             </Grid>
             
-            <Grid Grid.Column="12"
+            <Grid Grid.Column="13"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -279,7 +292,7 @@
                 <CheckBox x:Name="loopAudio" Grid.Row="2" Content="Loop Audio" IsChecked="True" />
             </Grid>
             
-            <Grid Grid.Column="13"
+            <Grid Grid.Column="14"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />

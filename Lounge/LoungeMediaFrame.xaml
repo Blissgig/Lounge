@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lounge"
         mc:Ignorable="d"
-        Title="LoungeMediaFrame" 
         ResizeMode="NoResize" 
         WindowStyle="None"
-        ShowInTaskbar="False" KeyUp="Window_KeyUp"
+        ShowInTaskbar="False" 
+        KeyUp="Window_KeyUp" 
+        Closing="Window_Closing"
         >
     <Grid Background="Black">
         <Canvas Name="Medias" />
-
         <Canvas Name="Visualizations"  />
     </Grid>
 </Window>
