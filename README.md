@@ -1,7 +1,9 @@
 # Lounge
-A multi-monitor, multi-media, multi-sensory application
+A multi-monitor, multi-media, multi-sensory application.
 
-I have a multi-monitor setup at home and created a hacked together piece of software to play media while I code, play games or just in the background.  This is a replacement for that software, but much more.  It will connect to addressable LEDs to affect them based on situations within the application.
+This is not your standard media player.  This is more of an art project/multi-media experience.
+
+I have a multi-monitor setup at home and created a hacked together piece of software to play media while I code, play games or just in the background.  This is a replacement for that software, but much more.  It connects to addressable LEDs to affect them based on situations within the application.
 
 
 ------------------------------------------------
@@ -14,7 +16,7 @@ Specifications:
 * Multiple audio visualizations, multiple select available.
 * LEDs, if using Arduino/LEDs, will change color to match current application/visualization color.
 * Optional LED patterns
-* Videos are played without sound, this is to avoid playback conflicts with the audio/music.  This is not a standard media player.
+* Videos are played without sound, this is to avoid playback conflicts with the audio/music.
 
 
 ------------------------------------------------
