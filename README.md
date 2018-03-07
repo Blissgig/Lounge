@@ -18,6 +18,13 @@ Specifications:
 * Optional LED patterns
 * Videos are played without sound, this is to avoid playback conflicts with the audio/music.
 
+Keyboard Shortcuts:
+* A = Select All files
+* B = Back one folder level
+* H = Home folders
+* P = Play
+* Escape = close application
+* Volume Mute = Mute / Unmute volume
 
 ------------------------------------------------
 External Assets
