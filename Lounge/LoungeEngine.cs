@@ -1327,12 +1327,61 @@ namespace Lounge
             }
         }
 
+        public void VisualizationSetup()
+        {
+            try
+            {
+                double width;
+                double left = 0;
+                double top = 0;
+
+                //Based on current visualization, setup the vis canvas.
+                foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                {
+                    mediaFrame.Visualizations.Children.Clear(); //TODO: might be nice to fade out existing items
+
+                    switch (currentVisualization.ToLower())
+                    {
+                        case "bars":
+                            width = (mediaFrame.Width / loungeAnalyzer.spectrumLines);
+                            top = (mediaFrame.Height / 2);
+                            left = 0;
+
+                            for (int iColumn = 0; iColumn < loungeAnalyzer.spectrumLines; iColumn++)
+                            {
+
+                                Border bar = new Border();
+                                bar.Name = "bar" + iColumn.ToString();
+                                bar.Tag = VISUALIZATION_ITEM;
+                                bar.Width = width;
+                                bar.BorderThickness = new Thickness(2);
+                                bar.CornerRadius = new CornerRadius(10);
+                                bar.Margin = new Thickness(1);
+                                bar.BorderBrush = new SolidColorBrush(Colors.Black);
+                                bar.Background = new SolidColorBrush(currentColor);
+                                bar.Opacity = 1;
+
+                                mediaFrame.Visualizations.Children.Add(bar);
+                                Canvas.SetLeft(bar, left);
+                                Canvas.SetTop(bar, top);
+                                left += width;
+                            }
+
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void Visualization(List<byte> visualData)
         {
             try
             {
                 Border visualElement;
-                Grid grid;
                 bool isBoom = false; //used to trigger function(s) when bass is high enough
 
                 switch (currentVisualization.ToLower())
@@ -1349,12 +1398,12 @@ namespace Lounge
                                 }
                             }
 
-                            foreach (LoungeMediaFrame lmf in mediaFrames)
+                            foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
-                                grid = (Grid)lmf.Visualizations.Children[0];
-                                visualElement = (Border)grid.Children[iValue];
-                                visualElement.Height =  ((lmf.ActualHeight / 255) * visualData[iValue]); 
+                                visualElement = (Border)mediaFrame.Visualizations.Children[iValue];
                                 visualElement.Opacity = (visualData[iValue] * .01);
+                                visualElement.Height =  ((mediaFrame.ActualHeight / 255) * visualData[iValue]);
+                                Canvas.SetTop(visualElement, (mediaFrame.Height / 2) - (visualElement.Height / 2));
                             }
                         }
                         break;
@@ -1377,58 +1426,7 @@ namespace Lounge
                 logException(ex);
             }
         }
-
-        public void VisualizationSetup()
-        {
-            try
-            {
-                //Based on current visualization, setup the vis canvas.
-                foreach (LoungeMediaFrame lmf in mediaFrames)
-                {
-                    lmf.Visualizations.Children.Clear();
-                    
-                    switch (currentVisualization.ToLower())
-                    {
-                        case "bars":
-                            Grid vizGrid = new Grid();
-                            vizGrid.Width = lmf.ActualWidth;
-                            vizGrid.Height = lmf.ActualHeight;
-
-                            lmf.Visualizations.Children.Add(vizGrid);
-                            
-                            Canvas.SetLeft(vizGrid, 0);
-                            Canvas.SetTop(vizGrid, 0);
-
-                            for (int iColumn = 0; iColumn < loungeAnalyzer.spectrumLines; iColumn++)
-                            {
-                                var columnDefinition = new ColumnDefinition();
-                                columnDefinition.Width = new GridLength(1, GridUnitType.Star);
-                                vizGrid.ColumnDefinitions.Add(columnDefinition);
-
-                                Border bar = new Border();
-                                bar.Name = "bar" + iColumn.ToString();
-                                bar.Tag = VISUALIZATION_ITEM;
-                                bar.BorderThickness = new Thickness(2);
-                                bar.CornerRadius = new CornerRadius(10);
-                                bar.Margin = new Thickness(1);
-                                bar.BorderBrush = new SolidColorBrush(Colors.Black);
-                                bar.Background = new SolidColorBrush(currentColor); 
-                                bar.Opacity = 1;
-
-                                vizGrid.Children.Add(bar);
-
-                                Grid.SetColumn(bar, iColumn);
-                            }
-                            break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logException(ex);
-            }
-        }
-
+        
         private string SettingGet(string setting)
         {
             string sReturn = "";
