@@ -34,5 +34,41 @@ namespace Lounge.Properties {
                 this["AudioDevice"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PrimaryMonitor {
+            get {
+                return ((bool)(this["PrimaryMonitor"]));
+            }
+            set {
+                this["PrimaryMonitor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ArdunioLEDs {
+            get {
+                return ((bool)(this["ArdunioLEDs"]));
+            }
+            set {
+                this["ArdunioLEDs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LoopAudio {
+            get {
+                return ((bool)(this["LoopAudio"]));
+            }
+            set {
+                this["LoopAudio"] = value;
+            }
+        }
     }
 }

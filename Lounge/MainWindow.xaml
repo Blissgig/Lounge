@@ -287,9 +287,9 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <CheckBox x:Name="primaryMonitor" Grid.Row="0" Content="Primary Monitor" IsChecked="True" />
-                <CheckBox x:Name="LEDs" Grid.Row="1" Content="Ardunio LEDs" IsChecked="True" />
-                <CheckBox x:Name="loopAudio" Grid.Row="2" Content="Loop Audio" IsChecked="True" />
+                <CheckBox x:Name="primaryMonitor" Grid.Row="0" Content="Primary Monitor" IsChecked="False" />
+                <CheckBox x:Name="LEDs" Grid.Row="1" Content="Ardunio LEDs" IsChecked="False" />
+                <CheckBox x:Name="loopAudio" Grid.Row="2" Content="Loop Audio" IsChecked="False" />
             </Grid>
             
             <Grid Grid.Column="14"

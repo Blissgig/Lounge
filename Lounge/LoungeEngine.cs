@@ -89,7 +89,7 @@ namespace Lounge
                         acceptableMediaVideoTypes += "*.mkv,";
                     }
                 }
-                
+
                 mainWindow.ColorChoices.Items.Add("All");
                 mainWindow.ColorChoices.Items.Add("Black and Gray");
                 mainWindow.ColorChoices.Items.Add("Reds - All");
@@ -98,7 +98,7 @@ namespace Lounge
                 mainWindow.ColorChoices.Items.Add("Greens");
                 mainWindow.ColorChoices.Items.Add("Pinks");
                 mainWindow.ColorChoices.Items.Add("Purples");
-                
+
 
                 //Audio Visualization Options
                 System.Windows.Controls.CheckBox vis = new System.Windows.Controls.CheckBox();
@@ -125,7 +125,7 @@ namespace Lounge
 
                 //Set the users default audio device
                 string sValue = SettingGet("AudioDevice");
-                
+
                 if (sValue.Trim().Length > 0)
                 {
                     for (int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
@@ -140,12 +140,104 @@ namespace Lounge
                     }
                 }
 
+                bool bValue = SettingGetBool("PrimaryMonitor");
+                mainWindow.primaryMonitor.IsChecked = bValue;
 
+                bValue = SettingGetBool("ArdunioLEDs");
+                mainWindow.LEDs.IsChecked = bValue;
+
+                bValue = SettingGetBool("LoopAudio");
+                mainWindow.loopAudio.IsChecked = bValue;
+
+
+                //For saving the current state to Settings
+                mainWindow.primaryMonitor.Checked += PrimaryMonitor_Checked;
+                mainWindow.primaryMonitor.Unchecked += PrimaryMonitor_Checked;
+
+                mainWindow.LEDs.Checked += LEDs_Checked;
+                mainWindow.LEDs.Unchecked += LEDs_Checked;
+
+                mainWindow.loopAudio.Checked += LoopAudio_Checked;
+                mainWindow.loopAudio.Unchecked += LoopAudio_Checked;
             }
             catch (Exception ex)
             {
                 logException(ex);
             }
+        }
+        
+        private string SettingGet(string setting)
+        {
+            string sReturn = "";
+
+            try
+            {
+                sReturn = (string)Properties.Settings.Default[setting];
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+
+            return sReturn;
+        }
+
+        private bool SettingGetBool(string setting)
+        {
+            bool bReturn = true;
+
+            try
+            {
+                bReturn = (bool)Properties.Settings.Default[setting];
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+
+            return bReturn;
+        }
+
+        public void SettingSave(string setting, string value)
+        {
+            try
+            {
+                Properties.Settings.Default[setting] = value;
+
+                Properties.Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
+        public void SettingSave(string setting, bool value)
+        {
+            Properties.Settings.Default[setting] = value;
+
+            Properties.Settings.Default.Save();
+        }
+
+        private void LEDs_Checked(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
+
+            SettingSave("ArdunioLEDs", (bool)checkbox.IsChecked);
+        }
+
+        private void PrimaryMonitor_Checked(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
+
+            SettingSave("PrimaryMonitor", (bool)checkbox.IsChecked);
+        }
+
+        private void LoopAudio_Checked(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
+
+            SettingSave("LoopAudio", (bool)checkbox.IsChecked);
         }
 
         public void MediaPlay()
@@ -1039,17 +1131,21 @@ namespace Lounge
                 dispatchTimer.Stop();
                 dispatchTimer = null;
 
-                int i = loungeRandom.Next(0, 100);
+                int i = loungeRandom.Next(0, 200);
 
-                if (i < 80)
+                if (i < 160)
                 {
                     //Generally just want to stay within the same media
                     MediaJump(mediaPlayer.LoungeMediaElement);
                 }
-
-                else
+                else if (i > 180)
                 {
                     MediaLoad(mediaPlayer.LoungeMediaElement);
+                }
+                else 
+                {
+                    //On the rare occasion when the values is between 160 and 180
+                    LoadScene(mediaFrame);
                 }
 
                 CreateTimer();
@@ -1415,7 +1511,7 @@ namespace Lounge
                                 Bubble.Height = Bubble.Width;
                                 Bubble.Fill = background;
                                 Bubble.Stroke = secondary;
-                                Bubble.StrokeThickness = 2;
+                                Bubble.StrokeThickness = 4;
                                 Bubble.Opacity = 1;
                                 mediaFrame.Visualizations.Children.Add(Bubble);
                                 left = loungeRandom.Next(100, Convert.ToInt16(mediaFrame.Height - 100));
@@ -1532,36 +1628,6 @@ namespace Lounge
             }
         }
         
-        private string SettingGet(string setting)
-        {
-            string sReturn = "";
-
-            try
-            {
-                sReturn = (string)Properties.Settings.Default[setting];
-            }
-            catch (Exception ex)
-            {
-                logException(ex);
-            }
-
-            return sReturn;
-        }
-
-        public void SettingSave(string setting, string value)
-        {
-            try
-            {
-                Properties.Settings.Default[setting] = value;
-
-                Properties.Settings.Default.Save();
-            }
-            catch (Exception ex)
-            {
-                logException(ex);
-            }
-        }
-
         public void logException(Exception ex)
         {
             try
