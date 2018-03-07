@@ -31,6 +31,7 @@ namespace Lounge
         private int maximumSceneTime = 20;
 
         private Color currentColor = Color.FromRgb(144, 0, 0);
+        private Color secondaryColor = Colors.Black;
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
         private string acceptableMediaPhotoTypes = ""; //"*.png,*.jpg,*.jpeg,"; //TODO: write photo code.
@@ -42,8 +43,8 @@ namespace Lounge
         private DispatcherTimer dispatchTimer;
         private SerialPort serialPort; //USB port used for LEDs
         private Analyzer loungeAnalyzer;
+        private double currentVolume = 0.5;
         private const byte BASS_LEVEL = 150;
-        private const string VISUALIZATION_ITEM = "audioVisualizationItem";
         private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
         #endregion
@@ -105,13 +106,12 @@ namespace Lounge
                 vis.IsChecked = true;
                 mainWindow.visualizations.Items.Add(vis);
 
+                vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Champagne";
+                vis.IsChecked = true;
+                mainWindow.visualizations.Items.Add(vis);
 
-                ////TEMP
-                //vis = new System.Windows.Controls.CheckBox();
-                //vis.Content = "Champagne";
-                //vis.IsChecked = false;
-                //mainWindow.visualizations.Items.Add(vis);
-
+                ////TODO
                 //vis = new System.Windows.Controls.CheckBox();
                 //vis.Content = "Float";
                 //vis.IsChecked = false;
@@ -159,10 +159,10 @@ namespace Lounge
                 else
                 {
                     mainWindow.WindowState = System.Windows.WindowState.Minimized;
-
-                    AudioNext();
-
+                    
                     LoadWindows();
+
+                    AudioNext(); //Has to happen after LoadWindows()
 
                     ColorUpdate();
 
@@ -170,12 +170,9 @@ namespace Lounge
                     {
                         LoadScene(mediaFrame);
                     }
-
-
+                    
                     if (AudioFiles.Count > 0)
                     {
-                        VisualizationSelect();  //Must come after the frames are loaded
-
                         loungeAnalyzer.Enable = true;
                         loungeAnalyzer.DisplayEnable = true;
                     }
@@ -195,8 +192,38 @@ namespace Lounge
             {
                 switch (e.Key)
                 {
+                    case System.Windows.Input.Key.VolumeMute:
+                        if (mainWindow.AudioElement.Volume == 0)
+                        {
+                            mainWindow.AudioElement.Volume = currentVolume;
+                        }
+                        else
+                        {
+                            currentVolume = mainWindow.AudioElement.Volume;
+                            mainWindow.AudioElement.Volume = 0;
+                        }
+                        break;
+
                     case System.Windows.Input.Key.Escape:
                         Dispose();
+                        break;
+
+                    case System.Windows.Input.Key.A: //Select All
+                        SelectAll();
+                        break;
+
+                    case System.Windows.Input.Key.B:
+                    case System.Windows.Input.Key.Back:
+                    case System.Windows.Input.Key.BrowserBack:
+                        Back();
+                        break;
+
+                    case System.Windows.Input.Key.H: //Home
+                        ListFiles(null);
+                        break;
+
+                    case System.Windows.Input.Key.P: //Play
+                        MediaPlay();
                         break;
                 }
             }
@@ -410,6 +437,8 @@ namespace Lounge
                     {
                         currentAudio = 0;
                     }
+
+                    VisualizationSelect();  //Must come after the frames are loaded
                 }
             }
             catch (Exception ex)
@@ -1317,9 +1346,14 @@ namespace Lounge
                     }
                 }
 
-                this.currentVisualization = visualizations[loungeRandom.Next(0, visualizations.Count)];
+                string newVisualization = visualizations[loungeRandom.Next(0, visualizations.Count)];
 
-                VisualizationSetup();
+                //Only need to update if the visualization has changed
+                if (newVisualization != this.currentVisualization)
+                {
+                    this.currentVisualization = newVisualization;
+                    VisualizationSetup();
+                }
             }
             catch (Exception)
             {
@@ -1343,16 +1377,15 @@ namespace Lounge
                     switch (currentVisualization.ToLower())
                     {
                         case "bars":
+                            Border bar;
                             width = (mediaFrame.Width / loungeAnalyzer.spectrumLines);
                             top = (mediaFrame.Height / 2);
                             left = 0;
 
-                            for (int iColumn = 0; iColumn < loungeAnalyzer.spectrumLines; iColumn++)
+                            for (int iBar = 0; iBar < loungeAnalyzer.spectrumLines; iBar++)
                             {
-
-                                Border bar = new Border();
-                                bar.Name = "bar" + iColumn.ToString();
-                                bar.Tag = VISUALIZATION_ITEM;
+                                bar = new Border();
+                                bar.Name = "bar" + iBar.ToString();
                                 bar.Width = width;
                                 bar.BorderThickness = new Thickness(2);
                                 bar.CornerRadius = new CornerRadius(10);
@@ -1366,7 +1399,56 @@ namespace Lounge
                                 Canvas.SetTop(bar, top);
                                 left += width;
                             }
+                            break;
 
+                        case "champagne":
+                            Ellipse Bubble;
+                            byte seconds = 4;
+                            Storyboard storyboardChampagne = new Storyboard();
+                            SolidColorBrush background = new SolidColorBrush(currentColor);
+                            SolidColorBrush secondary = new SolidColorBrush(secondaryColor);
+
+                            for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
+                            {
+                                Bubble = new Ellipse();
+                                Bubble.Width = (mediaFrame.Width / loungeAnalyzer.spectrumLines);
+                                Bubble.Height = Bubble.Width;
+                                Bubble.Fill = background;
+                                Bubble.Stroke = secondary;
+                                Bubble.StrokeThickness = 2;
+                                Bubble.Opacity = 1;
+                                mediaFrame.Visualizations.Children.Add(Bubble);
+                                left = loungeRandom.Next(100, Convert.ToInt16(mediaFrame.Height - 100));
+                                top = loungeRandom.Next(Convert.ToInt16(mediaFrame.Height), Convert.ToInt16(mediaFrame.Height + 100)); //To give a random starting point
+                                
+                                Canvas.SetTop(Bubble, top);
+                                Canvas.SetLeft(Bubble, left); //To give a random starting point
+
+                                seconds = Convert.ToByte(loungeRandom.Next(4, 12));
+
+                                //Left
+                                DoubleAnimation animationLeft = new DoubleAnimation();
+                                animationLeft.Duration = new Duration(new TimeSpan(0, 0, seconds));
+                                animationLeft.From = left;
+                                animationLeft.To = loungeRandom.Next(10, Convert.ToInt16(mediaFrame.Height - 10)); ;
+                                animationLeft.RepeatBehavior = RepeatBehavior.Forever;
+                                Storyboard.SetTarget(animationLeft, Bubble);
+                                Storyboard.SetTargetProperty(animationLeft, new PropertyPath(Canvas.LeftProperty));
+                                storyboardChampagne.Children.Add(animationLeft);
+
+                                //Top
+                                DoubleAnimation animationTop = new DoubleAnimation();
+                                animationTop.Duration = new Duration(new TimeSpan(0, 0, seconds));
+                                animationTop.From = top;
+                                animationTop.To = -loungeRandom.Next(100, 200);
+                                animationTop.RepeatBehavior = RepeatBehavior.Forever;
+
+                                Storyboard.SetTarget(animationTop, Bubble);
+                                Storyboard.SetTargetProperty(animationTop, new PropertyPath(Canvas.TopProperty));
+                                storyboardChampagne.Children.Add(animationTop);
+                            }
+
+                            storyboardChampagne.Begin();
                             break;
                     }
                 }
@@ -1381,12 +1463,12 @@ namespace Lounge
         {
             try
             {
-                Border visualElement;
                 bool isBoom = false; //used to trigger function(s) when bass is high enough
 
                 switch (currentVisualization.ToLower())
                 {
                     case "bars":
+                        Border bar;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
@@ -1400,10 +1482,33 @@ namespace Lounge
 
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
-                                visualElement = (Border)mediaFrame.Visualizations.Children[iValue];
-                                visualElement.Opacity = (visualData[iValue] * .01);
-                                visualElement.Height =  ((mediaFrame.ActualHeight / 255) * visualData[iValue]);
-                                Canvas.SetTop(visualElement, (mediaFrame.Height / 2) - (visualElement.Height / 2));
+                                bar = (Border)mediaFrame.Visualizations.Children[iValue];
+                                bar.Opacity = (visualData[iValue] * .01);
+                                bar.Height =  ((mediaFrame.ActualHeight / 255) * visualData[iValue]);
+                                Canvas.SetTop(bar, (mediaFrame.Height / 2) - (bar.Height / 2));
+                            }
+                        }
+                        break;
+
+                    case "champagne":
+                        Ellipse bubble;
+                        for (int iValue = 0; iValue < visualData.Count; iValue++)
+                        {
+                            //Trigger an effect when the value is high enough
+                            if (iValue < 20)
+                            {
+                                if (visualData[iValue] > BASS_LEVEL)
+                                {
+                                    isBoom = true;
+                                }
+                            }
+
+                            foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                            {
+                                bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
+                                bubble.Opacity = (visualData[iValue] * .01);
+                                bubble.Width = visualData[iValue];
+                                bubble.Height = visualData[iValue];
                             }
                         }
                         break;
