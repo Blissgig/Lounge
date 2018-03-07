@@ -1048,6 +1048,9 @@ namespace Lounge
             try
             {
                 var cover = new Rectangle();
+                cover.RadiusX = 24;
+                cover.RadiusY = 24;
+
                 var grid = (Grid)mediaElement.Parent;
                 grid = (Grid)grid.Parent;
                 var border = (Border)grid.Parent;
@@ -1066,7 +1069,7 @@ namespace Lounge
                 //This "flash" is to hide the change of media or the media's position
                 Storyboard storyboard = new Storyboard();
                 DoubleAnimation animation = new DoubleAnimation();
-                animation.Duration = TimeSpan.FromMilliseconds(1700);
+                animation.Duration = TimeSpan.FromMilliseconds(1800);
                 animation.From = 1.0;
                 animation.To = 0.0;
 
@@ -1133,18 +1136,19 @@ namespace Lounge
 
                 int i = loungeRandom.Next(0, 200);
 
-                if (i < 160)
+                //50% just change the position of the media
+                //25% load new media
+                //25% load new scene
+                if (i < 100)
                 {
-                    //Generally just want to stay within the same media
                     MediaJump(mediaPlayer.LoungeMediaElement);
                 }
-                else if (i > 180)
+                else if (i > 150)
                 {
                     MediaLoad(mediaPlayer.LoungeMediaElement);
                 }
                 else 
                 {
-                    //On the rare occasion when the values is between 160 and 180
                     LoadScene(mediaFrame);
                 }
 
@@ -1247,26 +1251,21 @@ namespace Lounge
             {
                 var background = new SolidColorBrush(currentColor);
 
-                foreach (LoungeMediaFrame lmf in mediaFrames)
+                foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                 {
-                    lmf.Background = background;
-                    lmf.Medias.Background = background;
+                    mediaFrame.Background = background;
+                    mediaFrame.Medias.Background = background;
 
-                    foreach(LoungeMediaPlayer lmps in lmf.Medias.Children)
+                    foreach(LoungeMediaPlayer mediaPlayer in mediaFrame.Medias.Children)
                     {
-                        lmps.border.BorderBrush = background;
+                         mediaPlayer.mask.Background = background; 
                     }
                     
-                    //TODO: This is temp, needs to be more generic (obviously)
-                    if (lmf.Visualizations.Children.Count > 0)
+                    if (mediaFrame.Visualizations.Children.Count > 0)
                     {
-                        Grid grid = (Grid)lmf.Visualizations.Children[0];
-
-                        var bars = grid.Children.OfType<Border>();
-
-                        foreach (Border bar in bars)
+                        foreach(Shape VisualizationItem in mediaFrame.Visualizations.Children)
                         {
-                            bar.Background = background;
+                            VisualizationItem.Fill = background;
                         }
                     }
                 }
@@ -1284,19 +1283,20 @@ namespace Lounge
                     //    currentColor.G.ToString() + "," +
                     //    currentColor.B.ToString() + ",";
 
+
                     //To start, just sending the color data
                     string sLEDData =
                         currentColor.R.ToString() + "," +
                         currentColor.G.ToString() + "," +
                         currentColor.B.ToString() + ",";
 
-                    serialPort = new SerialPort("COM3", 115200);  //9600
+                    //serialPort = new SerialPort("COM3", 115200);  //9600
 
                     //serialPort.Open();
                     //serialPort.Write(sLEDData);
                     //serialPort.Close();
-                    serialPort.Dispose();
-                    serialPort = null;
+                    //serialPort.Dispose();
+                    //serialPort = null;
                 }
             }
             catch (Exception ex)

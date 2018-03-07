@@ -11,7 +11,6 @@
         <Border 
                 Name="border"
                 BorderThickness="0" 
-                BorderBrush="#FF000000" 
                 CornerRadius="24" 
                 Padding="0"
                 HorizontalAlignment="Center" 
