@@ -636,6 +636,10 @@ namespace Lounge
                         {
                             mediaItem = new MediaItem(this, file, System.IO.Path.GetFileNameWithoutExtension(file.Name));
                             mediaItem.Icon.Source = new BitmapImage(new Uri(IconType(file), UriKind.Relative));
+
+                            //Mark the media as Selected as it is already in the list
+                            mediaItem.Selected = IsFileInList(file);
+                         
                             mainWindow.mediaItems.Children.Add(mediaItem);
                         }
                     }
@@ -649,6 +653,32 @@ namespace Lounge
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private bool IsFileInList(FileInfo file)
+        {
+            bool bReturn = false;
+            FileInfo foundFile = null;
+
+            if (acceptableMediaAudioTypes.Contains(file.Extension) == true)
+            {
+                foundFile = AudioFiles.Find(e => (e.FullName == file.FullName));
+            }
+            else if (acceptableMediaPhotoTypes.Contains(file.Extension) == true)
+            {
+                foundFile = PhotoFiles.Find(e => (e.FullName == file.FullName));
+            }
+            else if (acceptableMediaVideoTypes.Contains(file.Extension) == true)
+            {
+                foundFile = VideoFiles.Find(e => (e.FullName == file.FullName));
+            }
+
+            if (foundFile != null)
+            {
+                bReturn = true;
+            }
+
+            return bReturn;
         }
 
         private string IconType(FileInfo file)
