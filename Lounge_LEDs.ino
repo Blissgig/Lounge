@@ -1,8 +1,5 @@
 #include "FastLED.h"
 
-FASTLED_USING_NAMESPACE
-
-// Simple LED sketch.  Completely pirated from the Demo from FastLED
 
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
@@ -13,34 +10,73 @@ FASTLED_USING_NAMESPACE
 #define COLOR_ORDER GRB
 #define NUM_LEDS    300
 #define BRIGHTNESS  88
-#define FRAMES_PER_SECOND  120
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
+String command = "";
 uint8_t gHue = 0; // rotating "base color" 
-
+byte ledRed = 255;
+byte ledGreen = 0;
+byte ledBlue = 0;
+int TIMEOUT = 100;
 CRGB leds[NUM_LEDS];
 
+unsigned long lastTime;
+unsigned long currentTime;
+
 void setup() {
-  delay(3000); // 3 second delay for recovery
-  
-  // tell FastLED about the LED strip configuration
+  delay(3000);
+
+  Serial.begin(115200);
+
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
-  // set master brightness control
-  FastLED.setBrightness(BRIGHTNESS);  
+  FastLED.setBrightness(BRIGHTNESS);
+
+  lastTime = millis();
 }
 
-void loop()
+void loop() 
+{  
+    currentTime = millis();
+
+    if ((lastTime + TIMEOUT) > currentTime)
+    {
+      confetti();  
+      FastLED.show();
+      lastTime = currentTime;
+    }
+    
+    // do some periodic updates
+    //EVERY_N_MILLISECONDS( 200 ) { gHue++; }        
+}
+
+void serialEvent() 
 {
-  confetti();
+    char c = Serial.read();
 
-  // send the 'leds' array out to the actual LED strip
-  FastLED.show();  
-  // insert a delay to keep the framerate modest
-  FastLED.delay(1000/FRAMES_PER_SECOND); 
+    if (c == '|')
+    {
+      parseCommand(command);
+    }
+    else
+    {
+      command += c;
+    }
+}
 
-  // do some periodic updates
-  EVERY_N_MILLISECONDS( 200 ) { gHue++; } 
+void parseCommand(String values)
+{
+  command = "";
+
+  Serial.println("********");
+  Serial.println("30 Values: " + values);
+  
+  String red = values.substring(0, 3);
+  String grn = values.substring(3, 6);
+  String blu = values.substring(6, 9);
+  Serial.println("Red: " + red);
+  Serial.println("Green: " + grn);
+  Serial.println("Blue: " + blu); 
 }
 
 void confetti() 
@@ -57,24 +93,4 @@ void addGlitter( fract8 chanceOfGlitter)
   if( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::White;
   }
-}
-
-void serialEvent() 
-{
-  serialResponse = Serial.readStringUntil('\r\n');
-  //serialResponse = Serial.readStringUntil('\n');  //close but
-  
-  // Convert from String Object to String.
-    char buf[sizeof(sz)];
-    serialResponse.toCharArray(buf, sizeof(buf));
-    char *p = buf;
-    char *str;
-
-    // delimiter is the semicolon
-    while ((str = strtok_r(p, ";", &p)) != NULL) 
-    {
-      Serial.println(str);
-    }
-    
-   // FastLED.show();
 }
