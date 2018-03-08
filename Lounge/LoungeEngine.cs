@@ -47,6 +47,7 @@ namespace Lounge
         private const byte BASS_LEVEL = 150;
         private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
+        private byte currentLEDBrightness = 88;
         #endregion
 
         #region Methods
@@ -111,18 +112,6 @@ namespace Lounge
                 vis.IsChecked = true;
                 mainWindow.visualizations.Items.Add(vis);
 
-                ////TODO
-                //vis = new System.Windows.Controls.CheckBox();
-                //vis.Content = "Float";
-                //vis.IsChecked = false;
-                //mainWindow.visualizations.Items.Add(vis);
-
-                //vis = new System.Windows.Controls.CheckBox();
-                //vis.Content = "Pop";
-                //vis.IsChecked = false;
-                //mainWindow.visualizations.Items.Add(vis);
-                ////end temp
-
                 //Set the users default audio device
                 string sValue = SettingGet("AudioDevice");
 
@@ -145,6 +134,14 @@ namespace Lounge
 
                 bValue = SettingGetBool("ArdunioLEDs");
                 mainWindow.LEDs.IsChecked = bValue;
+
+                if (bValue)
+                {
+                    //The serial port needs to be opened a chunk
+                    //of time before sending data to the Arduino
+                    serialPort = new SerialPort("COM3", 115200);
+                    serialPort.Open();
+                }
 
                 bValue = SettingGetBool("LoopAudio");
                 mainWindow.loopAudio.IsChecked = bValue;
@@ -224,6 +221,25 @@ namespace Lounge
             System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
 
             SettingSave("ArdunioLEDs", (bool)checkbox.IsChecked);
+
+            try
+            {
+                if ((bool)checkbox.IsChecked)
+                {
+                    serialPort = new SerialPort("COM3", 115200);
+                    serialPort.Open();
+                }
+                else
+                {
+                    serialPort.Close();
+                    serialPort.Dispose();
+                    serialPort = null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private void PrimaryMonitor_Checked(object sender, RoutedEventArgs e)
@@ -1263,9 +1279,18 @@ namespace Lounge
                     
                     if (mediaFrame.Visualizations.Children.Count > 0)
                     {
-                        foreach(Shape VisualizationItem in mediaFrame.Visualizations.Children)
+                        foreach(var item in mediaFrame.Visualizations.Children)
                         {
-                            VisualizationItem.Fill = background;
+                            if (item.GetType() == typeof(Border))
+                            {
+                                Border border = (Border)item;
+                                border.Background = background;
+                            }
+                            else if (item.GetType() == typeof(Ellipse))
+                            {
+                                Ellipse bubble = (Ellipse)item;
+                                bubble.Fill = background;
+                            }
                         }
                     }
                 }
@@ -1273,24 +1298,16 @@ namespace Lounge
                 if ((bool)mainWindow.LEDs.IsChecked)
                 {
                     //- UPDATE LEDs -
-                    //Pattern: Brightness (0 - 255), R, G, B
+                    //Pattern: Brightness (0 - 255); Red; Green; Blue|
                     //Example: 88; 0; 88; 255 |  //Pipe to end feed
 
-                    
-                    //To start, just sending the color data
                     string sLEDData =
-                        "88;" + 
-                        currentColor.R.ToString() + ":;" +
+                        currentLEDBrightness.ToString() + ";" + 
+                        currentColor.R.ToString() + ";" +
                         currentColor.G.ToString() + ";" +
                         currentColor.B.ToString() + "|";
-
-                    //serialPort = new SerialPort("COM3", 115200);  //9600
-
-                    //serialPort.Open();
-                    //serialPort.Write(sLEDData);
-                    //serialPort.Close();
-                    //serialPort.Dispose();
-                    //serialPort = null;
+                    
+                    serialPort.Write(sLEDData);
                 }
             }
             catch (Exception ex)
@@ -1566,6 +1583,7 @@ namespace Lounge
                             {
                                 if (visualData[iValue] > BASS_LEVEL)
                                 {
+                                    //currentLEDBrightness = visualData[iValue];
                                     isBoom = true;
                                 }
                             }
