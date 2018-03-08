@@ -273,6 +273,7 @@ namespace Lounge
                     AudioNext(); //Has to happen after LoadWindows()
 
                     ColorUpdate();
+                    ColorUpdate();
 
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
@@ -812,23 +813,29 @@ namespace Lounge
             {
                 if (mediaFrame.Medias.Children.Count > 0)
                 {
+                    List<LoungeMediaPlayer> mediaPlayers = new List<LoungeMediaPlayer>();
                     Storyboard storyboard = new Storyboard();
 
                     foreach(LoungeMediaPlayer mediaPlayer in mediaFrame.Medias.Children)
                     {
+                        mediaPlayers.Add(mediaPlayer);
+
                         DoubleAnimation animation = new DoubleAnimation();
                         animation.Duration = TimeSpan.FromMilliseconds(1500);
                         animation.From = 1.0;
                         animation.To = 0.0;
 
-                        Storyboard.SetTarget(mediaPlayer, animation);
-                        Storyboard.SetTargetProperty(mediaPlayer, new PropertyPath(System.Windows.Controls.UserControl.OpacityProperty));
+                        Storyboard.SetTarget(animation, mediaPlayer);
+                        Storyboard.SetTargetProperty(animation, new PropertyPath(System.Windows.Controls.UserControl.OpacityProperty));
                         storyboard.Children.Add(animation);
                     }
 
                     storyboard.Completed += (sndr, evts) =>
                     {
-                        mediaFrame.Medias.Children.Clear();
+                        foreach(LoungeMediaPlayer mp in mediaPlayers)
+                        {
+                            mediaFrame.Medias.Children.Remove(mp);
+                        }
                     };
                     storyboard.Begin();
                 }
@@ -844,7 +851,7 @@ namespace Lounge
             try
             {
                 UnloadScene(mediaFrame);
-
+                
                 byte bPlayerCount = 0;
                 double dHeight = 400;
                 double dWidth = 400;
@@ -965,6 +972,8 @@ namespace Lounge
                     }
 
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
+                    
+                    mediaPlayer.Name = "MediaPlayer" + Guid.NewGuid().ToString().Replace("-", "");
                     mediaPlayer.border.BorderBrush = new SolidColorBrush(currentColor);
                     mediaPlayer.mask.Background = new SolidColorBrush(currentColor);
                     mediaPlayer.startPoint = startPoint;
@@ -972,8 +981,7 @@ namespace Lounge
 
                     int i = loungeRandom.Next(0, VideoFiles.Count);
                     FileInfo media = VideoFiles[i];
-
-
+                    
                     mediaPlayer.Width = dWidth;
                     mediaPlayer.Height = dHeight;
                     mediaPlayer.LoungeMediaElement.Height = dHeight - (dBorder * 2);
