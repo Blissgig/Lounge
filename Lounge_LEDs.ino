@@ -1,6 +1,5 @@
 #include "FastLED.h"
 
-
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
@@ -39,15 +38,12 @@ void loop()
 {  
     currentTime = millis();
 
-    if ((lastTime + TIMEOUT) > currentTime)
+   if ((currentTime - lastTime) > TIMEOUT)
     {
       confetti();  
       FastLED.show();
       lastTime = currentTime;
-    }
-    
-    // do some periodic updates
-    //EVERY_N_MILLISECONDS( 200 ) { gHue++; }        
+    }      
 }
 
 void serialEvent() 
@@ -69,14 +65,27 @@ void parseCommand(String values)
   command = "";
 
   Serial.println("********");
-  Serial.println("30 Values: " + values);
-  
-  String red = values.substring(0, 3);
-  String grn = values.substring(3, 6);
-  String blu = values.substring(6, 9);
-  Serial.println("Red: " + red);
-  Serial.println("Green: " + grn);
-  Serial.println("Blue: " + blu); 
+  Serial.println("Values: " + values);
+//-----------------------------------------
+
+    // Convert from String Object to String.
+    char sz[] = "01234567890123456789012345678901234567890123456789";
+    char buf[sizeof(sz)];
+    values.toCharArray(buf, sizeof(buf));
+    char *p = buf;
+    char *str;
+    while ((str = strtok_r(p, ";", &p)) != NULL) // delimiter is the semicolon
+    {
+      Serial.println(str);
+    }
+      
+
+  //String red = values.substring(0, 3);
+  //String grn = values.substring(3, 6);
+  //String blu = values.substring(6, 9);
+  //Serial.println("Red: " + red);
+  //Serial.println("Green: " + grn);
+  //Serial.println("Blue: " + blu); 
 }
 
 void confetti() 
