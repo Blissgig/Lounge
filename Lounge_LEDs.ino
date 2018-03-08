@@ -8,15 +8,16 @@
 #define LED_TYPE    WS2811
 #define COLOR_ORDER GRB
 #define NUM_LEDS    300
-#define BRIGHTNESS  88
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-String command = "";
-uint8_t gHue = 0; // rotating "base color" 
+String serialData = "";
 byte ledRed = 255;
 byte ledGreen = 0;
 byte ledBlue = 0;
+byte ledBrightness = 88;
 int TIMEOUT = 100;
+uint8_t gHue = 0;
+
 CRGB leds[NUM_LEDS];
 
 unsigned long lastTime;
@@ -29,7 +30,7 @@ void setup() {
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
-  FastLED.setBrightness(BRIGHTNESS);
+  FastLED.setBrightness(ledBrightness);
 
   lastTime = millis();
 }
@@ -52,48 +53,66 @@ void serialEvent()
 
     if (c == '|')
     {
-      parseCommand(command);
+      parseCommand(serialData);
     }
     else
     {
-      command += c;
+      serialData += c;
     }
 }
 
 void parseCommand(String values)
 {
-  command = "";
+    serialData = "";
 
-  Serial.println("********");
-  Serial.println("Values: " + values);
-//-----------------------------------------
-
-    // Convert from String Object to String.
-    char sz[] = "01234567890123456789012345678901234567890123456789";
+    String sValue;
+    byte position = 0;
+    char sz[] = "012345678901234567890";
     char buf[sizeof(sz)];
     values.toCharArray(buf, sizeof(buf));
     char *p = buf;
     char *str;
-    while ((str = strtok_r(p, ";", &p)) != NULL) // delimiter is the semicolon
+    
+    while ((str = strtok_r(p, ";", &p)) != NULL) //delimiter is semicolon
     {
-      Serial.println(str);
-    }
+      sValue = str;
       
+      switch (position)
+      {
+        case 0: //Brightness
+          ledBrightness = sValue.toInt();
+          break;
+          
+        case 1:
+          ledRed = sValue.toInt();
+          break;
 
-  //String red = values.substring(0, 3);
-  //String grn = values.substring(3, 6);
-  //String blu = values.substring(6, 9);
-  //Serial.println("Red: " + red);
-  //Serial.println("Green: " + grn);
-  //Serial.println("Blue: " + blu); 
+        case 2:
+          ledGreen = sValue.toInt();
+          break;        
+
+        case 3:
+          ledBlue = sValue.toInt();
+          break;            
+      }
+      position++;
+    }
+
+    //Set values
+    FastLED.setBrightness(ledBrightness);
+
+    for( int i = 0; i < NUM_LEDS; i++) { 
+      leds[i] = CRGB(ledRed, ledGreen, ledBlue);
+    }
+
+    FastLED.show();
 }
 
 void confetti() 
 {
-  // random colored speckles that blink in and fade smoothly
   fadeToBlackBy( leds, NUM_LEDS, 10);
   int pos = random16(NUM_LEDS);
-  leds[pos] += CHSV( gHue + random8(64), 200, 255);
+  leds[pos] = CRGB(ledRed, ledGreen, ledBlue);
   addGlitter(80);
 }
 

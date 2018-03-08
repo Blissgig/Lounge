@@ -1273,22 +1273,16 @@ namespace Lounge
                 if ((bool)mainWindow.LEDs.IsChecked)
                 {
                     //- UPDATE LEDs -
-                    //Pattern: Visualization, Brightness (0 - 255), Glitter Percentage, List of colors
-                    //Example: 0,80,255,0,0,
-                    //string sLEDData =
-                    //    "0," +
-                    //    "48," +
-                    //    "80," +
-                    //    currentColor.R.ToString() + "," +
-                    //    currentColor.G.ToString() + "," +
-                    //    currentColor.B.ToString() + ",";
+                    //Pattern: Brightness (0 - 255), R, G, B
+                    //Example: 88; 0; 88; 255 |  //Pipe to end feed
 
-
+                    
                     //To start, just sending the color data
                     string sLEDData =
-                        currentColor.R.ToString() + "," +
-                        currentColor.G.ToString() + "," +
-                        currentColor.B.ToString() + ",";
+                        "88;" + 
+                        currentColor.R.ToString() + ":;" +
+                        currentColor.G.ToString() + ";" +
+                        currentColor.B.ToString() + "|";
 
                     //serialPort = new SerialPort("COM3", 115200);  //9600
 
