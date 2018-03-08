@@ -1036,7 +1036,7 @@ namespace Lounge
                 var border = (Border)grid.Parent;
                 var canvas = (Canvas)border.Parent;
                 var lmp = (LoungeMediaPlayer)canvas.Parent;
-                int iMilliseconds = loungeRandom.Next(2000, 4000); //So that the players don't move in at the same time
+                int iMilliseconds = loungeRandom.Next(800, 2000); //So that the players don't move in at the same time
 
 
                 Storyboard storyboard = new Storyboard();
@@ -1540,7 +1540,7 @@ namespace Lounge
                                 Bubble.StrokeThickness = 4;
                                 Bubble.Opacity = 1;
                                 mediaFrame.Visualizations.Children.Add(Bubble);
-                                left = loungeRandom.Next(100, Convert.ToInt16(mediaFrame.Height - 100));
+                                left = loungeRandom.Next(100, Convert.ToInt16(mediaFrame.Width - 100));
                                 top = loungeRandom.Next(Convert.ToInt16(mediaFrame.Height), Convert.ToInt16(mediaFrame.Height + 100)); //To give a random starting point
                                 
                                 Canvas.SetTop(Bubble, top);
