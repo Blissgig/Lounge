@@ -48,6 +48,7 @@ namespace Lounge
         private DateTime lastBoom = DateTime.Now;
         private string currentVisualization = "";
         private byte currentLEDBrightness = 88;
+        private bool isAnimating = false; //Used to note when a storyboard animation is running, to avoid multiple at the same time.  Issue with app performance
         #endregion
 
         #region Methods
@@ -813,6 +814,7 @@ namespace Lounge
             {
                 if (mediaFrame.Medias.Children.Count > 0)
                 {
+                    isAnimating = true;
                     List<LoungeMediaPlayer> mediaPlayers = new List<LoungeMediaPlayer>();
                     Storyboard storyboard = new Storyboard();
 
@@ -836,6 +838,7 @@ namespace Lounge
                         {
                             mediaFrame.Medias.Children.Remove(mp);
                         }
+                        isAnimating = false;
                     };
                     storyboard.Begin();
                 }
@@ -1024,6 +1027,8 @@ namespace Lounge
             {
                 System.Threading.Thread.Sleep(100); //To insure that the media has time to load and play before moving the player into position
 
+                isAnimating = true;
+
                 //This is awful, must find a better way to most parent object.
                 var mediaElement = (MediaElement)sender;
                 var grid = (Grid)mediaElement.Parent;
@@ -1059,6 +1064,10 @@ namespace Lounge
                 Storyboard.SetTargetProperty(animationLeft, new PropertyPath(Canvas.LeftProperty));
                 storyboard.Children.Add(animationLeft);
 
+                storyboard.Completed += (sndr, evts) =>
+                {
+                    isAnimating = false;
+                };
                 storyboard.Begin();
             }
             catch (Exception ex)
@@ -1071,6 +1080,8 @@ namespace Lounge
         {
             try
             {
+                isAnimating = true;
+
                 var cover = new Rectangle();
                 cover.RadiusX = 24;
                 cover.RadiusY = 24;
@@ -1104,6 +1115,7 @@ namespace Lounge
                 storyboard.Completed += (sndr, evts) =>
                 {
                     lmp.Transition.Children.Clear();
+                    isAnimating = false;
                 };
                 storyboard.Begin();
             }
@@ -1433,15 +1445,10 @@ namespace Lounge
                 loungeAnalyzer.Enable = false;
                 loungeAnalyzer.DisplayEnable = false;
                 loungeAnalyzer = null;
-
-                foreach (LoungeMediaFrame mediaFrame in mediaFrames)
-                {
-                    mediaFrame.Close();
-                }
-
+                
                 mediaFrames.Clear();
 
-                mainWindow.Close();
+                System.Windows.Application.Current.Shutdown();
             }
             catch 
             { }
@@ -1633,7 +1640,7 @@ namespace Lounge
                 if (isBoom)
                 {
                     var diffInSeconds = (DateTime.Now - lastBoom).TotalMilliseconds;
-                    if (diffInSeconds > 888)
+                    if ((diffInSeconds > 1400) && (isAnimating == false))
                     {
                         ColorsRecalc();
                         MediaRandom();
