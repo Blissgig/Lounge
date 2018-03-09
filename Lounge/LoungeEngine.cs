@@ -135,21 +135,26 @@ namespace Lounge
 
                 bValue = SettingGetBool("ArdunioLEDs");
                 mainWindow.LEDs.IsChecked = bValue;
-
                 if (bValue)
                 {
                     //The serial port needs to be opened a chunk
                     //of time before sending data to the Arduino
-                    serialPort = new SerialPort("COM3", 115200);
-                    serialPort.Open();
+                    try
+                    {
+                        //In case the port is not available
+                        serialPort = new SerialPort("COM3", 115200);
+                        serialPort.Open();
+                    }
+                    catch 
+                    {
+                    }
                 }
 
                 bValue = SettingGetBool("LoopAudio");
                 mainWindow.loopAudio.IsChecked = bValue;
 
-				//Functions for saveplaylist and other functions in the main window
-				//mainWindow.saveplaylist
-				
+
+
                 //For saving the current state to Settings
                 mainWindow.primaryMonitor.Checked += PrimaryMonitor_Checked;
                 mainWindow.primaryMonitor.Unchecked += PrimaryMonitor_Checked;
@@ -159,13 +164,109 @@ namespace Lounge
 
                 mainWindow.loopAudio.Checked += LoopAudio_Checked;
                 mainWindow.loopAudio.Unchecked += LoopAudio_Checked;
+
+                //Move functionality from mainWindow to here
+                mainWindow.selectHome.Click += SelectHome_Click;
+                mainWindow.savePlaylist.Click += SavePlaylist_Click;
+                mainWindow.back.Click += Back_Click;
+                mainWindow.selectAll.Click += SelectAll_Click;
+                mainWindow.clearAll.Click += ClearAll_Click;
+                mainWindow.playMedia.Click += PlayMedia_Click;
+                mainWindow.audioPrior.Click += AudioPrior_Click;
+                mainWindow.audioNext.Click += AudioNext_Click;
+                mainWindow.appInfo.Click += AppInfo_Click;
+                mainWindow.AudioVolume.ValueChanged += AudioVolume_ValueChanged;
+                mainWindow.audioDevices.SelectionChanged += AudioDevices_SelectionChanged;
+                mainWindow.ColorChoices.SelectionChanged += ColorChoices_SelectionChanged;
+                mainWindow.RedLow.KeyUp += ColorsRecalc;
+                mainWindow.RedHigh.KeyUp += ColorsRecalc;
+                mainWindow.GreenLow.KeyUp += ColorsRecalc;
+                mainWindow.GreenHigh.KeyUp += ColorsRecalc;
+                mainWindow.BlueLow.KeyUp += ColorsRecalc;
+                mainWindow.BlueHigh.KeyUp += ColorsRecalc;
+                mainWindow.AudioElement.MediaEnded += AudioElement_MediaNext;
+                mainWindow.AudioElement.MediaFailed += AudioElement_MediaNext;
+                mainWindow.KeyUp += KeyPress;
+
             }
             catch (Exception ex)
             {
                 logException(ex);
             }
         }
-        
+
+        private void AudioElement_MediaNext(object sender, RoutedEventArgs e)
+        {
+            AudioNext();
+        }
+
+        private void ColorsRecalc(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            ColorsRecalc();
+        }
+
+        private void ColorChoices_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string value = mainWindow.ColorChoices.SelectedValue.ToString();
+
+            ColorUpdated(value);
+        }
+
+        private void AudioDevices_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SettingSave("AudioDevice", mainWindow.audioDevices.SelectedValue.ToString());
+        }
+
+        private void AudioVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            AudioVolume();
+        }
+
+        private void AppInfo_Click(object sender, RoutedEventArgs e)
+        {
+            AppInfo();
+        }
+
+        private void AudioNext_Click(object sender, RoutedEventArgs e)
+        {
+            AudioNext();
+        }
+
+        private void AudioPrior_Click(object sender, RoutedEventArgs e)
+        {
+            AudioPrior();
+        }
+
+        private void PlayMedia_Click(object sender, RoutedEventArgs e)
+        {
+            MediaPlay();
+        }
+
+        private void ClearAll_Click(object sender, RoutedEventArgs e)
+        {
+            ClearAll();
+        }
+
+        private void SelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            SelectAll();
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Back();
+        }
+
+        private void SelectHome_Click(object sender, RoutedEventArgs e)
+        {
+            Home();
+        }
+
+        private void SavePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            SavePlaylist();
+        }
+
         private string SettingGet(string setting)
         {
             string sReturn = "";

@@ -11,9 +11,6 @@
         Icon="app.ico" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
-        Loaded="Window_Loaded" 
-        Closing="Window_Closing"
-        KeyUp="Window_KeyUp" 
         Background="{DynamicResource WindowBackgroundBrush}" 
         >
 
@@ -31,8 +28,7 @@
             Name="AudioElement" 
             LoadedBehavior="Manual"
             Opacity="0" 
-            MediaEnded="Media_Ended"
-            MediaFailed="Media_Ended"/>
+            />
 
         <Grid 
             Name="Navigation"
@@ -65,7 +61,6 @@
                 Grid.Column="0" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="home_Click"
                 ToolTip="Home"
                 >
                 <Image Name="homeImage" Source="Assets/home.png" />
@@ -76,7 +71,6 @@
                 Grid.Column="1" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="savePlaylist_Click"
                 ToolTip="Save Playlist"
                 >
                 <Image Name="saveImage" Source="Assets/save.png" />
@@ -87,7 +81,6 @@
                 Grid.Column="2" 
                 Margin="4"
                 HorizontalAlignment="Stretch" 
-                Click="back_Click" 
                 ToolTip="Back"
                 >
                 <Image Name="backImage" Source="Assets/back.png" />
@@ -98,7 +91,6 @@
                 Grid.Column="3" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="selectAll_Click"
                 ToolTip="Select All"
                 >
                 <Image Name="selectallImage" Source="Assets/selectall.png" />
@@ -109,7 +101,6 @@
                 Grid.Column="4" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="clearAll_Click"
                 ToolTip="Clear Playlists"
                 >
                 <Image Name="clearImage" Source="Assets/recycle.png" />
@@ -120,7 +111,6 @@
                 Grid.Column="5" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="play_Click"
                 ToolTip="Play"
                 >
                 <Image Name="playImage" Source="Assets/play.png" />
@@ -131,7 +121,6 @@
                 Grid.Column="6" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="AudioPrior_Click"
                 ToolTip="Previous Audio"
                 >
                 <Image Name="audioPriorImage" Source="Assets/prior.png" />
@@ -142,18 +131,16 @@
                 Grid.Column="7" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="AudioNext_Click"
                 ToolTip="Next Audio"
                 >
                 <Image Name="audioNextImage" Source="Assets/next.png" />
             </Button>
 
             <Button 
-                x:Name="appInfot"
+                x:Name="appInfo"
                 Grid.Column="8" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
-                Click="appInfo_Click"
                 ToolTip="Next Audio"
                 >
                 <Image Name="appInfoImage" Source="Assets/info.png" />
@@ -173,13 +160,13 @@
                         VerticalAlignment="Stretch" 
                         Value=".5" 
                         Minimum="0" 
-                        Maximum="1" 
-                        ValueChanged="AudioVolume_ValueChanged"  />
+                        Maximum="1"   />
+                
                 <ComboBox x:Name="audioDevices" 
                           Grid.Row="1" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
-                          SelectionChanged="audioDevices_SelectionChanged"  />
+                            />
             </Grid>
 
             <ListBox x:Name="LEDPatterns" 
@@ -215,7 +202,7 @@
                           Grid.ColumnSpan="3" 
                           HorizontalAlignment="Stretch" 
                           VerticalAlignment="Stretch" 
-                          SelectionChanged="ColorChoices_SelectionChanged"/>
+                          />
 
                 <Label x:Name="Red" 
                        Grid.Row="1" 
@@ -231,7 +218,7 @@
                          Margin="0, 4, 10, 0"
                          Text="0" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                         />
                 
                 <TextBox x:Name="RedHigh" 
                          Grid.Column="2" 
@@ -239,7 +226,7 @@
                          Margin="0, 4, 0, 0"
                          Text="255" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                         />
 
             </Grid>
 
@@ -264,7 +251,7 @@
                          Margin="0, 0, 10, 4"
                          Text="0" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                            />
                 
                 <TextBox x:Name="GreenHigh" 
                          Grid.Column="2" 
@@ -272,7 +259,7 @@
                          Margin="0, 0, 10, 4"
                          Text="255" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                         />
 
                 <TextBox x:Name="BlueLow" 
                          Grid.Column="1" 
@@ -280,7 +267,7 @@
                          Margin="0, 4, 10, 0"
                          Text="0" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                         />
                 
                 <TextBox x:Name="BlueHigh" 
                          Grid.Column="2" 
@@ -288,7 +275,7 @@
                          Margin="0, 4, 10, 0"
                          Text="255" 
                          TextAlignment="Center"
-                         KeyUp="ColorsReCalc"/>
+                         />
             </Grid>
             
             <Grid Grid.Column="14"
