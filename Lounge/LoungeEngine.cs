@@ -738,6 +738,14 @@ namespace Lounge
             }
 		}
 		
+        public void CreateBreadcrumb(string title)
+        {
+            System.Windows.Controls.Label label = new System.Windows.Controls.Label();
+            label.Content = title;
+            label.Margin = new Thickness(10, 0, 10, 0);
+            mainWindow.Breakcrumbs.Children.Add(label);
+        }
+
         public void ListFiles(DirectoryInfo Folder)
         {
             try
@@ -752,7 +760,9 @@ namespace Lounge
                 if (Folder == null)
                 {
                     breadcrumbs.Clear();
-
+                    mainWindow.Breakcrumbs.Children.Clear();
+                    CreateBreadcrumb("Home");
+                    
                     DriveInfo drv;
                     string sTemp;
 
@@ -781,7 +791,8 @@ namespace Lounge
                 else
                 {
                     breadcrumbs.Add(Folder);
-
+                    CreateBreadcrumb(Folder.Name);
+                    
                     DirectoryInfo[] folders = Folder.GetDirectories();
                     FileInfo[] files = Folder.GetFiles();
                     string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes + acceptableMediaPlaylistTypes;

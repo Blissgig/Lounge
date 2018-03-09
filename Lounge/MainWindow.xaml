@@ -11,7 +11,7 @@
         Icon="app.ico" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
-        Background="{DynamicResource WindowBackgroundBrush}" 
+        Background="{DynamicResource WindowBackgroundBrush}" Loaded="Window_Loaded" 
         >
 
     <Grid>
@@ -21,6 +21,7 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -306,8 +307,14 @@
 
         </Grid>
 
-        <ScrollViewer 
+        <WrapPanel Name="Breakcrumbs"
             Grid.Row="1"
+            Margin="10, 0, 10, 0"
+                   >
+        </WrapPanel>
+
+        <ScrollViewer 
+            Grid.Row="2"
             HorizontalScrollBarVisibility="Disabled" 
             VerticalScrollBarVisibility="Auto">
             <WrapPanel Name="mediaItems"
