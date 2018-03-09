@@ -147,7 +147,9 @@ namespace Lounge
                 bValue = SettingGetBool("LoopAudio");
                 mainWindow.loopAudio.IsChecked = bValue;
 
-
+				//Functions for saveplaylist and other functions in the main window
+				//mainWindow.saveplaylist
+				
                 //For saving the current state to Settings
                 mainWindow.primaryMonitor.Checked += PrimaryMonitor_Checked;
                 mainWindow.primaryMonitor.Unchecked += PrimaryMonitor_Checked;
@@ -274,7 +276,6 @@ namespace Lounge
                     AudioNext(); //Has to happen after LoadWindows()
 
                     ColorUpdate();
-                    ColorUpdate();
 
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
@@ -347,6 +348,8 @@ namespace Lounge
         {
             try
             {
+                Cursor.Current = Cursors.WaitCursor;
+
                 FileInfo MediaFile;
 
                 using (StreamReader PlaylistReader = new StreamReader(file.FullName))
@@ -392,6 +395,10 @@ namespace Lounge
             catch (Exception ex)
             {
                 logException(ex);
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
             }
         }
 
@@ -573,6 +580,63 @@ namespace Lounge
             mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
         }
         
+		public void SavePlaylist()
+		{
+			try
+			{
+                if ((AudioFiles.Count == 0) && (PhotoFiles.Count == 0) && (VideoFiles.Count == 0))
+                {
+                    System.Windows.Forms.MessageBox.Show(
+                        "There are no media selected to add to a playlist" +
+                        Environment.NewLine +
+                        "Please add some media and then press Save again",
+                        "No media to save", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+                    saveFileDialog.Title = "Save Playlist";
+                    saveFileDialog.Filter = "Playlists (*.m3u)|*.m3u|All files (*.*)|*.*";
+                    saveFileDialog.FilterIndex = 1;
+                    saveFileDialog.RestoreDirectory = true;
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        Cursor.Current = Cursors.WaitCursor;
+
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(saveFileDialog.FileName))
+                        {
+                            file.WriteLine("#EXTM3U");
+
+                            foreach (FileInfo mediaFile in AudioFiles)
+                            {
+                                file.WriteLine(mediaFile.FullName);
+                            }
+
+                            foreach (FileInfo mediaFile in PhotoFiles)
+                            {
+                                file.WriteLine(mediaFile.FullName);
+                            }
+
+                            foreach (FileInfo mediaFile in VideoFiles)
+                            {
+                                file.WriteLine(mediaFile.FullName);
+                            }
+                        }
+                    }
+                }
+			}
+			catch (Exception ex)
+			{
+				logException(ex);
+			}
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+		}
+		
         public void ListFiles(DirectoryInfo Folder)
         {
             try
@@ -746,13 +810,15 @@ namespace Lounge
                     {
                         bResult = true;
                     }
-
-                    if (acceptableMediaPhotoTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    else if (acceptableMediaPhotoTypes.IndexOf(file.Extension.ToLower()) > -1)
                     {
                         bResult = true;
                     }
-
-                    if (acceptableMediaVideoTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    else if (acceptableMediaPlaylistTypes.IndexOf(file.Extension.ToLower()) > -1)
+                    {
+                        bResult = true;
+                    }
+                    else if (acceptableMediaVideoTypes.IndexOf(file.Extension.ToLower()) > -1)
                     {
                         bResult = true;
                     }
@@ -1455,7 +1521,6 @@ namespace Lounge
 
         public void ColorsRecalc()
         {
-           
             try
             {
                 byte bR = Convert.ToByte(loungeRandom.Next(Convert.ToByte(mainWindow.RedLow.Text.Trim()), Convert.ToByte(mainWindow.RedHigh.Text.Trim())));

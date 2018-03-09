@@ -39,6 +39,11 @@ namespace Lounge
             loungeEngine.Home();
         }
 
+        private void savePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            loungeEngine.SavePlaylist();
+        }
+
         private void back_Click(object sender, RoutedEventArgs e)
         {
             loungeEngine.Back();
@@ -105,6 +110,5 @@ namespace Lounge
             loungeEngine = null;
         }
         #endregion
-
     }
 }

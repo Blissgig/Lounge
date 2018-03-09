@@ -43,6 +43,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50" />
+				<ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
@@ -71,8 +72,19 @@
             </Button>
             
             <Button 
-                x:Name="back" 
+                x:Name="savePlaylist"
                 Grid.Column="1" 
+                Margin="4"
+                HorizontalAlignment="Stretch"
+                Click="savePlaylist_Click"
+                ToolTip="Save Playlist"
+                >
+                <Image Name="saveImage" Source="Assets/save.png" />
+            </Button>
+            
+            <Button 
+                x:Name="back" 
+                Grid.Column="2" 
                 Margin="4"
                 HorizontalAlignment="Stretch" 
                 Click="back_Click" 
@@ -83,7 +95,7 @@
 
             <Button 
                 x:Name="selectAll"
-                Grid.Column="2" 
+                Grid.Column="3" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="selectAll_Click"
@@ -94,7 +106,7 @@
 
             <Button 
                 x:Name="clearAll"
-                Grid.Column="3" 
+                Grid.Column="4" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="clearAll_Click"
@@ -105,7 +117,7 @@
 
             <Button 
                 x:Name="playMedia"
-                Grid.Column="4" 
+                Grid.Column="5" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="play_Click"
@@ -116,7 +128,7 @@
 
             <Button 
                 x:Name="audioPrior"
-                Grid.Column="5" 
+                Grid.Column="6" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="AudioPrior_Click"
@@ -127,7 +139,7 @@
 
             <Button 
                 x:Name="audioNext"
-                Grid.Column="6" 
+                Grid.Column="7" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="AudioNext_Click"
@@ -138,7 +150,7 @@
 
             <Button 
                 x:Name="appInfot"
-                Grid.Column="7" 
+                Grid.Column="8" 
                 Margin="4"
                 HorizontalAlignment="Stretch"
                 Click="appInfo_Click"
@@ -147,7 +159,7 @@
                 <Image Name="appInfoImage" Source="Assets/info.png" />
             </Button>
             
-            <Grid Grid.Column="8"
+            <Grid Grid.Column="9"
                   Margin="10, 0, 10, 4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -172,19 +184,19 @@
 
             <ListBox x:Name="LEDPatterns" 
                      ToolTip="LED Patterns"
-                     Grid.Column="9" 
+                     Grid.Column="10"
                      Margin="5, 0, 5, 0"
                      VerticalAlignment="Stretch" 
                      HorizontalAlignment="Stretch" />
 
             <ListBox x:Name="visualizations"
                      ToolTip="Audio Visualizations"
-                     Grid.Column="10" 
+                     Grid.Column="11" 
                      Margin="5, 0, 5, 0"
                      HorizontalAlignment="Stretch" 
                      VerticalAlignment="Stretch" />
 
-            <Grid Grid.Column="11"
+            <Grid Grid.Column="12"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -231,7 +243,7 @@
 
             </Grid>
 
-            <Grid Grid.Column="12">
+            <Grid Grid.Column="13">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -279,7 +291,7 @@
                          KeyUp="ColorsReCalc"/>
             </Grid>
             
-            <Grid Grid.Column="13"
+            <Grid Grid.Column="14"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -292,7 +304,7 @@
                 <CheckBox x:Name="loopAudio" Grid.Row="2" Content="Loop Audio" IsChecked="False" />
             </Grid>
             
-            <Grid Grid.Column="14"
+            <Grid Grid.Column="15"
                   Margin="10, 0, 10, 0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
