@@ -16,6 +16,7 @@ using System.Windows;
 using System.IO.Ports;
 using System.Windows.Media.Imaging;
 
+
 namespace Lounge
 {
     public class LoungeEngine
@@ -741,8 +742,10 @@ namespace Lounge
         public void CreateBreadcrumb(string title)
         {
             System.Windows.Controls.Label label = new System.Windows.Controls.Label();
-            label.Content = title;
-            label.Margin = new Thickness(10, 0, 10, 0);
+            label.Content = "● " + title;
+            label.Margin = new Thickness(8, 0, 8, 0);
+            label.FontSize = 18;
+            label.Cursor = System.Windows.Input.Cursors.Hand;
             label.Tag = mainWindow.Breakcrumbs.Children.Count.ToString(); //To identify for the position when the user clicks this. Hack.
             label.MouseDown += Label_MouseDown;
             mainWindow.Breakcrumbs.Children.Add(label);
