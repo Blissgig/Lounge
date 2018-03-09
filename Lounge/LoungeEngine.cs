@@ -743,7 +743,46 @@ namespace Lounge
             System.Windows.Controls.Label label = new System.Windows.Controls.Label();
             label.Content = title;
             label.Margin = new Thickness(10, 0, 10, 0);
+            label.Tag = mainWindow.Breakcrumbs.Children.Count.ToString(); //To identify for the position when the user clicks this. Hack.
+            label.MouseDown += Label_MouseDown;
             mainWindow.Breakcrumbs.Children.Add(label);
+        }
+
+        private void Label_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            try
+            {
+                //Remove Breadcrumbs and set the new position
+                System.Windows.Controls.Label label = (System.Windows.Controls.Label)sender;
+
+                int iPosition = Convert.ToInt16(label.Tag);  //Holding the value here is a bit of a hack, I know.
+                
+                for(int i = (mainWindow.Breakcrumbs.Children.Count - 1); i > iPosition; i--)
+                {
+                    mainWindow.Breakcrumbs.Children.RemoveAt(i);
+                    breadcrumbs.RemoveAt(i - 1);
+                }
+
+                //Remove the selected breadcrump as it is going to be readded by ListFiles
+                if (breadcrumbs.Count > 0)
+                {
+                    DirectoryInfo folder = breadcrumbs[(breadcrumbs.Count - 1)];
+
+                    mainWindow.Breakcrumbs.Children.RemoveAt(mainWindow.Breakcrumbs.Children.Count - 1);
+                    breadcrumbs.RemoveAt(breadcrumbs.Count - 1);
+
+                    ListFiles(folder);
+                }
+                else
+                {
+                    //The user has selected "Home", there are no values left in breadcrumbs
+                    ListFiles(null);
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
         }
 
         public void ListFiles(DirectoryInfo Folder)
