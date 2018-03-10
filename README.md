@@ -42,4 +42,5 @@ Note: It is VERY important that when working with an external power source like 
 
 ------------------------------------------------
 Technical Support:
-* If the Arduino is not powered up BEFORE starting Lounge, then Lounge will not be able to access the LEDs
+* Turn on the Arduino before starting Lounge. If the Arduino is not powered up BEFORE starting Lounge, then Lounge will not be able to access the LEDs
+* Run the script "Lounge_LEDs.ino into the Arduino before starting Lounge.
