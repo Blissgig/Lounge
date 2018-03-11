@@ -39,3 +39,8 @@ External Assets
  - Power source for Arduino: https://www.amazon.com/gp/product/B06Y1LF8T5/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1   
  - Power source for LEDs: https://www.amazon.com/gp/product/B01D8FLWGE/ref=oh_aui_detailpage_o04_s00?ie=UTF8&psc=1
 Note: It is VERY important that when working with an external power source like the one I linked that you be VERY careful and have knowledge of electricity.  Beware, electricity can kill.   This power was needed as I am using two sets of the LEDs listed.  I was able to just use the power supply for the Arduino when testing with just one LED strip.
+
+------------------------------------------------
+Technical Support:
+* Turn on the Arduino before starting Lounge. If the Arduino is not powered up BEFORE starting Lounge, then Lounge will not be able to access the LEDs
+* Run the script "Lounge_LEDs.ino into the Arduino before starting Lounge.
