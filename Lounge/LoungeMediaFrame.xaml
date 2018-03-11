@@ -11,8 +11,9 @@
         KeyUp="Window_KeyUp" 
         Closing="Window_Closing"
         >
-    <Grid Background="Black">
+    <Grid>
         <Canvas Name="Medias" />
+        <Canvas Name="Photos" />
         <Canvas Name="Visualizations"  />
     </Grid>
 </Window>

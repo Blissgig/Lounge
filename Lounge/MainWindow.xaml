@@ -11,7 +11,7 @@
         Icon="app.ico" 
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized" 
-        Background="{DynamicResource WindowBackgroundBrush}" Loaded="Window_Loaded" 
+        Background="{DynamicResource WindowBackgroundBrush}" Loaded="Window_Loaded" Closing="Window_Closing" 
         >
 
     <Grid>
@@ -30,7 +30,7 @@
             LoadedBehavior="Manual"
             Opacity="0" 
             />
-
+        
         <Grid 
             Name="Navigation"
             Grid.Row="0" 

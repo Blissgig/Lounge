@@ -35,7 +35,7 @@ namespace Lounge
         private Color secondaryColor = Colors.Black;
         private string applicationName = "Lounge";
         private string acceptableMediaVideoTypes = "*.avi,*.asf,*.mp4,*.m4v,*.mpg,*.mpeg,*.mpeg2,*.mpeg4,*.wmv,*.3gp,*.mov,*.mts,*.divx,";
-        private string acceptableMediaPhotoTypes = ""; //"*.png,*.jpg,*.jpeg,"; //TODO: write photo code.
+        private string acceptableMediaPhotoTypes = "*.png,*.jpg,*.jpeg,"; 
         private string acceptableMediaAudioTypes = "*.mp3,*.wma,*.wav,*.m4a,";
         private string acceptableMediaPlaylistTypes = "*.m3u,"; //  '".m3u,.wpl,";
         private List<LoungeMediaFrame> mediaFrames = new List<LoungeMediaFrame>();
@@ -351,6 +351,20 @@ namespace Lounge
         {
             System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
 
+            if(checkbox.IsChecked == false)
+            {
+                //Remove the Primary Window's frame
+                foreach(LoungeMediaFrame mediaFrame in mediaFrames)
+                {
+                    if (mediaFrame.PrimaryMonitor)
+                    {
+                        mediaFrame.Close();
+                        mediaFrames.Remove(mediaFrame);
+                        break;
+                    }
+                }
+            }
+
             SettingSave("PrimaryMonitor", (bool)checkbox.IsChecked);
         }
 
@@ -516,7 +530,7 @@ namespace Lounge
             }
         }
 
-        public void SelectAll(bool select = true)
+        public void SelectAll(bool isSelected = true)
         {
             try
             {
@@ -526,8 +540,14 @@ namespace Lounge
                 {
                     if (mediaItem.File != null)
                     {
-                        mediaItem.Selected = select;
-                        AddRemoveMedia(mediaItem.File);
+                        mediaItem.Selected = isSelected;
+
+                        //Only if true as the ClearAll removes everything and this would just add the items back.
+                        if (isSelected)
+                        {
+                            AddRemoveMedia(mediaItem.File);
+                        }
+                        
                     }
                 }
             }
@@ -741,14 +761,19 @@ namespace Lounge
 		
         public void CreateBreadcrumb(string title)
         {
-            System.Windows.Controls.Label label = new System.Windows.Controls.Label();
-            label.Content = "● " + title;
-            label.Margin = new Thickness(8, 0, 8, 0);
-            label.FontSize = 18;
-            label.Cursor = System.Windows.Input.Cursors.Hand;
-            label.Tag = mainWindow.Breakcrumbs.Children.Count.ToString(); //To identify for the position when the user clicks this. Hack.
-            label.MouseDown += Label_MouseDown;
-            mainWindow.Breakcrumbs.Children.Add(label);
+            try
+            {
+                System.Windows.Controls.Label label = new System.Windows.Controls.Label();
+                label.Content = "● " + title;
+                label.Margin = new Thickness(8, 0, 8, 0);
+                label.FontSize = 18;
+                label.Cursor = System.Windows.Input.Cursors.Hand;
+                label.Tag = mainWindow.Breakcrumbs.Children.Count.ToString(); //To identify for the position when the user clicks this. Hack.
+                label.MouseDown += Label_MouseDown;
+                mainWindow.Breakcrumbs.Children.Add(label);
+            }
+            catch 
+            {  }
         }
 
         private void Label_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -788,6 +813,28 @@ namespace Lounge
             }
         }
 
+        private void LEDUpdate()
+        {
+            try
+            {
+                if ((bool)mainWindow.LEDs.IsChecked)
+                {
+                    //- UPDATE LEDs -
+                    //Pattern: Brightness (0 - 255); Red; Green; Blue|
+                    //Example: 88; 0; 88; 255 |  //Pipe to end feed
+
+                    string sLEDData =
+                        currentLEDBrightness.ToString() + ";" +
+                        currentColor.R.ToString() + ";" +
+                        currentColor.G.ToString() + ";" +
+                        currentColor.B.ToString() + "|";
+
+                    serialPort.Write(sLEDData);
+                }
+            }
+            catch 
+            {    }
+        }
         public void ListFiles(DirectoryInfo Folder)
         {
             try
@@ -834,9 +881,10 @@ namespace Lounge
                 {
                     breadcrumbs.Add(Folder);
                     CreateBreadcrumb(Folder.Name);
-                    
+
                     DirectoryInfo[] folders = Folder.GetDirectories();
                     FileInfo[] files = Folder.GetFiles();
+
                     string acceptableMediaTypes = acceptableMediaAudioTypes + acceptableMediaPhotoTypes + acceptableMediaVideoTypes + acceptableMediaPlaylistTypes;
                     foreach (DirectoryInfo folder in folders)
                     {
@@ -937,9 +985,27 @@ namespace Lounge
 
         private bool IsFolderValid(DirectoryInfo folder)
         {
+            //This function insures that only folders that have content, or at least subfolders with content are shown.
+            //However on testing on folders with large number of files there becomes a speed issue, a NOTICABLE speed issue
+            //Currently this functionality has been turned off, a Advanced Settings dialog may be valuable for a number of items
+            
+            
+            //TEMP
+            if ((folder.Attributes & FileAttributes.System) == (FileAttributes.System))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+
+            //-------------------------------------------------
             bool bResult = false;
 
 
+            Console.WriteLine("IFV 1: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
             if ((folder.Attributes & FileAttributes.System) == (FileAttributes.System))
             {
                 bResult = false;
@@ -947,7 +1013,9 @@ namespace Lounge
             else
             {
                 //Check if there is media in the folder or sub folder, otherwise no need to show it.
+                Console.WriteLine("IFV 2: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
                 DirectoryInfo[] folders = folder.GetDirectories();
+                Console.WriteLine("IFV 3: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
                 bool bFolders = false;
 
                 if (folders.Count() > 0)
@@ -957,7 +1025,7 @@ namespace Lounge
 
                 //No need to check for files, if there are folders
                 FileInfo[] Files = folder.GetFiles();
-
+                Console.WriteLine("IFV 4: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
                 foreach (FileInfo file in Files)
                 {
                     if (acceptableMediaAudioTypes.IndexOf(file.Extension.ToLower()) > -1)
@@ -982,7 +1050,7 @@ namespace Lounge
                         break;
                     }
                 }
-
+                Console.WriteLine("IFV 5: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
                 Files = null;
 
                 //This recursion, on a very deep folder took < 500 milliseconds
@@ -998,7 +1066,7 @@ namespace Lounge
                         }
                     }
                 }
-
+                Console.WriteLine("IFV 6: " + DateTime.Now.Minute + "." + DateTime.Now.Second + "." + DateTime.Now.Millisecond);
                 folders = null;
             }
 
@@ -1104,6 +1172,7 @@ namespace Lounge
             try
             {
                 UnloadScene(mediaFrame);
+
                 
                 byte bPlayerCount = 0;
                 double dHeight = 400;
@@ -1112,6 +1181,9 @@ namespace Lounge
                 var startPoint = new Point(0, 0);
                 var endPoint = new Point(0, 0);
                 List<byte> playerCount = new List<byte>();
+                SolidColorBrush brush = new SolidColorBrush(currentColor);
+
+                mediaFrame.Background = brush;
 
                 //Note: I am not happy with this code
                 //      There should be a better way to randomly distribute the media players around the scene.
@@ -1227,8 +1299,8 @@ namespace Lounge
                     LoungeMediaPlayer mediaPlayer = new LoungeMediaPlayer();
                     
                     mediaPlayer.Name = "MediaPlayer" + Guid.NewGuid().ToString().Replace("-", "");
-                    mediaPlayer.border.BorderBrush = new SolidColorBrush(currentColor);
-                    mediaPlayer.mask.Background = new SolidColorBrush(currentColor);
+                    mediaPlayer.border.BorderBrush = brush;
+                    mediaPlayer.mask.Background = brush;
                     mediaPlayer.startPoint = startPoint;
                     mediaPlayer.endPoint = endPoint;
 
@@ -1471,7 +1543,7 @@ namespace Lounge
                     {
                         LoungeMediaFrame loungeMediaFrame = new LoungeMediaFrame(this);
                         loungeMediaFrame.Name = "Display" + scr.DeviceName.Replace('\\', '_').Replace('.', 'A');
-
+                        loungeMediaFrame.PrimaryMonitor = scr.Primary; 
 
                         loungeMediaFrame.Left = workingArea.Left;
                         loungeMediaFrame.Top = workingArea.Top;
@@ -1535,6 +1607,9 @@ namespace Lounge
         {
             try
             {
+                //This should happen first because of possible delays (minor) to the LEDs
+                LEDUpdate();
+             
                 var background = new SolidColorBrush(currentColor);
 
                 foreach (LoungeMediaFrame mediaFrame in mediaFrames)
@@ -1563,21 +1638,6 @@ namespace Lounge
                             }
                         }
                     }
-                }
-
-                if ((bool)mainWindow.LEDs.IsChecked)
-                {
-                    //- UPDATE LEDs -
-                    //Pattern: Brightness (0 - 255); Red; Green; Blue|
-                    //Example: 88; 0; 88; 255 |  //Pipe to end feed
-
-                    string sLEDData =
-                        currentLEDBrightness.ToString() + ";" + 
-                        currentColor.R.ToString() + ";" +
-                        currentColor.G.ToString() + ";" +
-                        currentColor.B.ToString() + "|";
-                    
-                    serialPort.Write(sLEDData);
                 }
             }
             catch (Exception ex)
@@ -1843,12 +1903,13 @@ namespace Lounge
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
+                            //if ((iValue < 20) && (isBoom = false))
                             if (iValue < 20)
                             {
                                 if (visualData[iValue] > BASS_LEVEL)
                                 {
-                                    //currentLEDBrightness = visualData[iValue];
                                     isBoom = true;
+                                    currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
                                 }
                             }
 
@@ -1867,10 +1928,12 @@ namespace Lounge
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
+                            //if ((iValue < 20) && (isBoom = false))
                             if (iValue < 20)
                             {
                                 if (visualData[iValue] > BASS_LEVEL)
                                 {
+                                    currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
                                     isBoom = true;
                                 }
                             }
@@ -1888,6 +1951,8 @@ namespace Lounge
 
                 if (isBoom)
                 {
+
+                    //Not all Booms affect color changes
                     var diffInSeconds = (DateTime.Now - lastBoom).TotalMilliseconds;
                     if ((diffInSeconds > 1400) && (isAnimating == false))
                     {
@@ -1895,7 +1960,9 @@ namespace Lounge
                         MediaRandom();
                         lastBoom = DateTime.Now; //Reset the Boom
                     }
-                    
+
+                    //All booms generate a photo process
+                    PhotoDisplay();
                 }
             }
             catch (Exception ex)
@@ -1904,6 +1971,79 @@ namespace Lounge
             }
         }
         
+        private void PhotoDisplay()
+        {
+            try
+            {
+                if (PhotoFiles.Count > 0)
+                {
+                    Border border = new Border();
+                    Image photo = new Image();
+                    double from = 0.0;
+                    double to = 1.0;
+                    byte stroke = 18;
+                    bool reverse = true;
+
+                    LoungeMediaFrame mediaFrame = mediaFrames[loungeRandom.Next(0, mediaFrames.Count)];
+                    FileInfo file = PhotoFiles[loungeRandom.Next(0, PhotoFiles.Count)];
+                    BitmapImage image = new BitmapImage(new Uri(file.FullName));
+                    
+                    double left = loungeRandom.Next(stroke, Convert.ToInt16(mediaFrame.ActualWidth * .6));
+                    double top = loungeRandom.Next(stroke, Convert.ToInt16(mediaFrame.ActualHeight * .66)); //Images are defauled to 1/3 the size of the media frame.  This may change later based on input during testing.
+
+
+                    System.Windows.Media.Effects.DropShadowEffect eft = new System.Windows.Media.Effects.DropShadowEffect();
+                    eft.Color = currentColor;
+                    eft.Opacity = 1.0;
+                    eft.ShadowDepth = 0;
+                    eft.BlurRadius = 50;
+
+
+                    photo.Source = image;
+                    photo.Effect = eft;
+
+                    border.Background = new SolidColorBrush(currentColor); 
+                    border.Height = (mediaFrame.ActualHeight * .34); 
+                    border.Child = photo;
+                    border.Effect = eft;
+
+                    mediaFrame.Photos.Children.Add(border);
+                    Canvas.SetLeft(border, top);
+                    Canvas.SetTop(border, left);
+
+                    Storyboard storyboard = new Storyboard();
+                    DoubleAnimation animation = new DoubleAnimation();
+                    animation.Duration = TimeSpan.FromMilliseconds(loungeRandom.Next(1500, 3000));
+
+                    //A few simple options for how the images are displayed
+                    if (loungeRandom.Next(0, 100) < 50)
+                    {
+                        from = 1.0;
+                        to = 0.0;
+                        reverse = false;
+                    }
+                    
+                    animation.From = from;
+                    animation.To = to;
+                    animation.AutoReverse = reverse;
+
+                    Storyboard.SetTarget(animation, border);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(Border.OpacityProperty));
+
+                    storyboard.Children.Add(animation);
+                    storyboard.Completed += (sndr, evts) =>
+                    {
+                        mediaFrame.Photos.Children.Remove(border);
+                    };
+                    storyboard.Begin();
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
+        }
+
         public void logException(Exception ex)
         {
             try

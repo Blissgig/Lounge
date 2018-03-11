@@ -20,5 +20,11 @@ namespace Lounge
             
             Dispatcher.BeginInvoke(new System.Action(() => loungeEngine.SettingsLoad()), System.Windows.Threading.DispatcherPriority.ContextIdle, null);
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            loungeEngine.Dispose();
+            loungeEngine = null;
+        }
     }
 }

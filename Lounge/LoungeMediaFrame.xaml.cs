@@ -8,6 +8,8 @@ namespace Lounge
     {
         private LoungeEngine loungeEngine;
 
+        public bool PrimaryMonitor { get; set; }
+
         public LoungeMediaFrame()
         {
             InitializeComponent();
