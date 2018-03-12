@@ -110,6 +110,11 @@ namespace Lounge
                 mainWindow.visualizations.Items.Add(vis);
 
                 vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Bounce";
+                vis.IsChecked = true;
+                mainWindow.visualizations.Items.Add(vis);
+
+                vis = new System.Windows.Controls.CheckBox();
                 vis.Content = "Champagne";
                 vis.IsChecked = true;
                 mainWindow.visualizations.Items.Add(vis);
@@ -1799,6 +1804,8 @@ namespace Lounge
                 double width;
                 double left = 0;
                 double top = 0;
+                SolidColorBrush background = new SolidColorBrush(currentColor);
+                SolidColorBrush secondary = new SolidColorBrush(secondaryColor);
 
                 //Based on current visualization, setup the vis canvas.
                 foreach (LoungeMediaFrame mediaFrame in mediaFrames)
@@ -1807,6 +1814,7 @@ namespace Lounge
 
                     switch (currentVisualization.ToLower())
                     {
+                        #region Bars
                         case "bars":
                             Border bar;
                             width = (mediaFrame.Width / loungeAnalyzer.spectrumLines);
@@ -1831,14 +1839,38 @@ namespace Lounge
                                 left += width;
                             }
                             break;
+                        #endregion
 
+                        #region Bounce
+                        case "bounce":
+                            width = Convert.ToInt16(mediaFrame.ActualWidth / loungeAnalyzer.spectrumLines);
+                            top = mediaFrame.ActualHeight - width;
+
+                            left = 0;
+                            for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
+                            {
+                                Ellipse bubble = new Ellipse();
+                                bubble.Width = width;
+                                bubble.Height = width;
+                                bubble.Fill = background;
+                                bubble.Opacity = 0.0;
+                                bubble.Stroke = secondary;
+                                bubble.StrokeThickness = 2;
+                                mediaFrame.Visualizations.Children.Add(bubble);
+                                Canvas.SetLeft(bubble, left);
+                                Canvas.SetTop(bubble, top);
+
+                                left += width;
+                            }
+                            break;
+                        #endregion
+
+                        #region Champagne
                         case "champagne":
                             Ellipse Bubble;
                             byte seconds = 4;
                             Storyboard storyboardChampagne = new Storyboard();
-                            SolidColorBrush background = new SolidColorBrush(currentColor);
-                            SolidColorBrush secondary = new SolidColorBrush(secondaryColor);
-
+                            
                             for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
                             {
                                 Bubble = new Ellipse();
@@ -1881,6 +1913,9 @@ namespace Lounge
 
                             storyboardChampagne.Begin();
                             break;
+
+                        #endregion
+
                     }
                 }
             }
@@ -1898,6 +1933,7 @@ namespace Lounge
 
                 switch (currentVisualization.ToLower())
                 {
+                    #region Bars
                     case "bars":
                         Border bar;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
@@ -1924,9 +1960,37 @@ namespace Lounge
                             }
                         }
                         break;
+                    #endregion
 
-                    case "champagne":
+                    case "bounce":
                         Ellipse bubble;
+                        for (int iValue = 0; iValue < visualData.Count; iValue++)
+                        {
+                            //Trigger an effect when the value is high enough
+                            if (iValue < 20)
+                            {
+                                if (isBoom == false)
+                                {
+                                    if (visualData[iValue] > BASS_LEVEL)
+                                    {
+                                        isBoom = true;
+                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
+                                    }
+                                }
+                            }
+
+                            foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                            {
+                                bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
+                                bubble.Opacity = ((visualData[iValue] * 0.39) * .01);
+                                Canvas.SetTop(bubble, (mediaFrame.ActualHeight - ((mediaFrame.ActualHeight / 255) * visualData[iValue])));
+                            }
+                        }
+                        break;
+
+                    #region Champagne
+                    case "champagne":
+                        Ellipse champagne;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
@@ -1944,13 +2008,12 @@ namespace Lounge
 
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
-                                bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
-                                bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //255  * .39 = 99.45, then *.01 = .99 max value
-                                //bubble.Width = visualData[iValue];
-                                //bubble.Height = visualData[iValue];
+                                champagne = (Ellipse)mediaFrame.Visualizations.Children[iValue];
+                                champagne.Opacity = ((visualData[iValue] * 0.39) * .01); //255  * .39 = 99.45, then *.01 = .99 max value
                             }
                         }
                         break;
+                        #endregion
                 }
 
                 if (isBoom)
