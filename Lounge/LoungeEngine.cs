@@ -1842,7 +1842,7 @@ namespace Lounge
                             for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
                             {
                                 Bubble = new Ellipse();
-                                Bubble.Width = (mediaFrame.Width / loungeAnalyzer.spectrumLines);
+                                Bubble.Width = loungeRandom.Next(16, 44);
                                 Bubble.Height = Bubble.Width;
                                 Bubble.Fill = background;
                                 Bubble.Stroke = secondary;
@@ -1903,13 +1903,15 @@ namespace Lounge
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
-                            //if ((iValue < 20) && (isBoom = false))
                             if (iValue < 20)
                             {
-                                if (visualData[iValue] > BASS_LEVEL)
+                                if (isBoom == false)
                                 {
-                                    isBoom = true;
-                                    currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
+                                    if (visualData[iValue] > BASS_LEVEL)
+                                    {
+                                        isBoom = true;
+                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
+                                    }
                                 }
                             }
 
@@ -1928,22 +1930,24 @@ namespace Lounge
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
-                            //if ((iValue < 20) && (isBoom = false))
                             if (iValue < 20)
                             {
-                                if (visualData[iValue] > BASS_LEVEL)
+                                if (isBoom == false)
                                 {
-                                    currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
-                                    isBoom = true;
+                                    if (visualData[iValue] > BASS_LEVEL)
+                                    {
+                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
+                                        isBoom = true;
+                                    }
                                 }
                             }
 
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
                                 bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
-                                bubble.Opacity = (visualData[iValue] * .01);
-                                bubble.Width = visualData[iValue];
-                                bubble.Height = visualData[iValue];
+                                bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //255  * .39 = 99.45, then *.01 = .99 max value
+                                //bubble.Width = visualData[iValue];
+                                //bubble.Height = visualData[iValue];
                             }
                         }
                         break;
@@ -1951,7 +1955,6 @@ namespace Lounge
 
                 if (isBoom)
                 {
-
                     //Not all Booms affect color changes
                     var diffInSeconds = (DateTime.Now - lastBoom).TotalMilliseconds;
                     if ((diffInSeconds > 1400) && (isAnimating == false))
