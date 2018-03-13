@@ -126,6 +126,11 @@ namespace Lounge
                 vis.IsChecked = true;
                 mainWindow.visualizations.Items.Add(vis);
 
+                vis = new System.Windows.Controls.CheckBox();
+                vis.Content = "Float";
+                vis.IsChecked = true;
+                mainWindow.visualizations.Items.Add(vis);
+
                 //Set the users default audio device
                 string sValue = SettingGet("AudioDevice");
 
@@ -1806,6 +1811,9 @@ namespace Lounge
                 double width;
                 double left = 0;
                 double top = 0;
+                byte seconds = 4;
+                byte margin = 10;
+                Ellipse Bubble;
                 SolidColorBrush background = new SolidColorBrush(currentColor);
                 SolidColorBrush secondary = new SolidColorBrush(secondaryColor);
 
@@ -1869,8 +1877,6 @@ namespace Lounge
 
                         #region Champagne
                         case "champagne":
-                            Ellipse Bubble;
-                            byte seconds = 4;
                             Storyboard storyboardChampagne = new Storyboard();
                             
                             for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
@@ -1895,7 +1901,7 @@ namespace Lounge
                                 DoubleAnimation animationLeft = new DoubleAnimation();
                                 animationLeft.Duration = new Duration(new TimeSpan(0, 0, seconds));
                                 animationLeft.From = left;
-                                animationLeft.To = loungeRandom.Next(10, Convert.ToInt16(mediaFrame.Height - 10)); ;
+                                animationLeft.To = loungeRandom.Next(margin, Convert.ToInt16(mediaFrame.Height - margin)); ;
                                 animationLeft.RepeatBehavior = RepeatBehavior.Forever;
                                 Storyboard.SetTarget(animationLeft, Bubble);
                                 Storyboard.SetTargetProperty(animationLeft, new PropertyPath(Canvas.LeftProperty));
@@ -1918,6 +1924,56 @@ namespace Lounge
 
                         #endregion
 
+                        #region Float
+                        case "float":
+                            Storyboard bubbleStoryboard = new Storyboard();
+
+                            for (byte b = 0; b < loungeAnalyzer.spectrumLines; b++)
+                            {
+                                Bubble = new Ellipse();
+                                Bubble.Width = loungeRandom.Next(16, 32);
+                                Bubble.Height = Bubble.Width;
+                                Bubble.Stroke = secondary;
+                                Bubble.StrokeThickness = 1;
+                                Bubble.Opacity = 1;
+
+
+                                mediaFrame.Visualizations.Children.Add(Bubble);
+                                left = loungeRandom.Next(margin, Convert.ToInt16(mediaFrame.Width - (margin + Bubble.Height)));
+                                top = loungeRandom.Next(margin, Convert.ToInt16(mediaFrame.Height - (margin + Bubble.Height))); //To give a random starting point
+
+                                Canvas.SetTop(Bubble, top);
+                                Canvas.SetLeft(Bubble, left); //To give a random starting point
+
+                                seconds = Convert.ToByte(loungeRandom.Next(4, 12));
+
+                                DoubleAnimation aniLeft = new DoubleAnimation();
+                                aniLeft.Duration = TimeSpan.FromSeconds(seconds);
+                                aniLeft.From = left;
+                                aniLeft.To = loungeRandom.Next(margin, Convert.ToInt16(mediaFrame.ActualWidth - (margin + Bubble.Width)));
+                                aniLeft.AutoReverse = true;
+                                aniLeft.RepeatBehavior = RepeatBehavior.Forever;
+
+                                Storyboard.SetTarget(aniLeft, Bubble);
+                                Storyboard.SetTargetProperty(aniLeft, new PropertyPath(Canvas.LeftProperty));
+                                bubbleStoryboard.Children.Add(aniLeft);
+
+                                DoubleAnimation aniTop = new DoubleAnimation();
+                                aniTop.Duration = TimeSpan.FromSeconds(seconds);
+                                aniTop.From = top;
+                                aniTop.To = loungeRandom.Next(margin, Convert.ToInt16(mediaFrame.ActualHeight - (margin + Bubble.Width)));
+                                aniTop.AutoReverse = true;
+                                aniTop.RepeatBehavior = RepeatBehavior.Forever;
+
+                                Storyboard.SetTarget(aniTop, Bubble);
+                                Storyboard.SetTargetProperty(aniTop, new PropertyPath(Canvas.TopProperty));
+                                bubbleStoryboard.Children.Add(aniTop);
+                            }
+
+                            bubbleStoryboard.Begin();
+                            break;
+                            #endregion
+
                     }
                 }
             }
@@ -1932,6 +1988,7 @@ namespace Lounge
             try
             {
                 bool isBoom = false; //used to trigger function(s) when bass is high enough
+                Ellipse bubble;
 
                 switch (currentVisualization.ToLower())
                 {
@@ -1966,7 +2023,6 @@ namespace Lounge
 
                     #region Bounce
                     case "bounce":
-                        Ellipse bubble;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
@@ -1994,7 +2050,6 @@ namespace Lounge
 
                     #region Champagne
                     case "champagne":
-                        Ellipse champagne;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
                             //Trigger an effect when the value is high enough
@@ -2012,12 +2067,83 @@ namespace Lounge
 
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
-                                champagne = (Ellipse)mediaFrame.Visualizations.Children[iValue];
-                                champagne.Opacity = ((visualData[iValue] * 0.39) * .01); //255  * .39 = 99.45, then *.01 = .99 max value
+                                bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
+                                bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //255  * .39 = 99.45, then *.01 = .99 max value
                             }
                         }
                         break;
-                        #endregion
+                    #endregion
+
+                    #region Float
+                    case "float":
+                        if (!isAnimating)
+                        {
+                            isAnimating = true;
+
+                            double size = 0;
+                            Storyboard storyboard = new Storyboard();
+                            Duration duration = new Duration(new TimeSpan(0, 0, 0, 0, 400));
+
+                            for (int iValue = 0; iValue < visualData.Count; iValue++)
+                            {
+                                //Trigger an effect when the value is high enough
+                                if (iValue < 20)
+                                {
+                                    if (isBoom == false)
+                                    {
+                                        if (visualData[iValue] > BASS_LEVEL)
+                                        {
+                                            currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
+                                            isBoom = true;
+                                        }
+                                    }
+                                }
+
+                                foreach (LoungeMediaFrame mediaFrame in mediaFrames)
+                                {
+                                    bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
+                                    bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //(255 * .39) = 99.45, then *.01 = .99 max value
+
+                                    if (visualData[iValue] > 60)
+                                    {
+                                        size = (bubble.ActualWidth + (visualData[iValue] * 2.8)) / bubble.ActualWidth;
+
+                                        ScaleTransform scale = new ScaleTransform(1.0, 1.0);
+                                        bubble.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+                                        bubble.RenderTransform = scale;
+
+                                        DoubleAnimation anmWidth = new DoubleAnimation();
+                                        anmWidth.Duration = duration;
+                                        anmWidth.From = 1; 
+                                        anmWidth.To = size;
+                                        anmWidth.AutoReverse = true;
+
+                                        Storyboard.SetTargetProperty(anmWidth, new PropertyPath("RenderTransform.ScaleX"));
+                                        Storyboard.SetTarget(anmWidth, bubble);
+                                        storyboard.Children.Add(anmWidth);
+
+
+                                        DoubleAnimation anmHeight = new DoubleAnimation();
+                                        anmHeight.Duration = duration;
+                                        anmHeight.From = 1; 
+                                        anmHeight.To = size;
+                                        anmHeight.AutoReverse = true;
+
+                                        Storyboard.SetTargetProperty(anmHeight, new PropertyPath("RenderTransform.ScaleY"));
+                                        Storyboard.SetTarget(anmHeight, bubble);
+                                        storyboard.Children.Add(anmHeight);
+                                    }
+                                }
+                            }
+
+                            storyboard.Completed += (sndr, evts) =>
+                            {
+                                isAnimating = false;
+                            };
+                            storyboard.Begin();
+                        }
+                        break;
+                    #endregion
                 }
 
                 if (isBoom)
