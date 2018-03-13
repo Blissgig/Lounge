@@ -63,7 +63,7 @@ namespace Lounge
             else
             {
                 this.Selected = !this.Selected;
-                loungeEngine.SelectMediaItem(this.File);
+                loungeEngine.AddRemoveMedia(this.File);
             }
         }
     }

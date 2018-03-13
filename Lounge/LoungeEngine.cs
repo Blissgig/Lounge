@@ -465,7 +465,7 @@ namespace Lounge
                         MediaPlay();
                         break;
 
-                    case System.Windows.Input.Key.S:
+                    case System.Windows.Input.Key.S: 
                         SavePlaylist();
                         break;
                 }
@@ -534,18 +534,6 @@ namespace Lounge
             }
         }
 
-        public void SelectMediaItem(FileInfo file)
-        {
-            try
-            {
-                AddRemoveMedia(file);
-            }
-            catch (Exception ex)
-            {
-                logException(ex);
-            }
-        }
-
         public void SelectAll(bool isSelected = true)
         {
             try
@@ -563,7 +551,6 @@ namespace Lounge
                         {
                             AddRemoveMedia(mediaItem.File);
                         }
-                        
                     }
                 }
             }
@@ -633,8 +620,7 @@ namespace Lounge
                 {
                     files.Add(file);
                 }
-
-
+                
                 mainWindow.AudioCount.Content = AudioFiles.Count.ToString() + " audio files";
                 mainWindow.PhotoCount.Content = PhotoFiles.Count.ToString() + " photo files";
                 mainWindow.VideoCount.Content = VideoFiles.Count.ToString() + " video files";
@@ -645,7 +631,7 @@ namespace Lounge
             }
         }
 
-        private void AddRemoveMedia(FileInfo file)
+        public void AddRemoveMedia(FileInfo file)
         {
             try
             {
@@ -851,6 +837,7 @@ namespace Lounge
             catch 
             {    }
         }
+
         public void ListFiles(DirectoryInfo Folder)
         {
             try
@@ -1138,8 +1125,10 @@ namespace Lounge
             System.Windows.Forms.MessageBox.Show(
                 "This application is copyright © 2018 by James Rose" + 
                 Environment.NewLine +
+                "Version: " + Assembly.GetExecutingAssembly().GetName().Version.ToString() +
+                Environment.NewLine +
                 "Source code is available at Github.com/Blissgig", 
-                applicationName + " info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                applicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void UnloadScene(LoungeMediaFrame mediaFrame)
@@ -1363,8 +1352,6 @@ namespace Lounge
         {
             try
             {
-                System.Threading.Thread.Sleep(100); //To insure that the media has time to load and play before moving the player into position
-
                 isAnimating = true;
 
                 //This is awful, must find a better way to most parent object.
@@ -1498,7 +1485,7 @@ namespace Lounge
             }
         }
 
-        private void MediaRandom()
+        private void MediaRandom(bool createTimer = true)
         {
             try
             {
@@ -1511,13 +1498,13 @@ namespace Lounge
                 int i = loungeRandom.Next(0, 200);
 
                 //50% just change the position of the media
-                //37% load new media
-                //12% load new scene
+                //25% load new media
+                //25% load new scene
                 if (i < 100)
                 {
                     MediaJump(mediaPlayer.LoungeMediaElement);
                 }
-                else if (i > 125)
+                else if (i > 150)
                 {
                     MediaLoad(mediaPlayer.LoungeMediaElement); 
                 }
@@ -1525,10 +1512,12 @@ namespace Lounge
                 {
                     //This can cause music and/or media that is playing to skip on some occasions with some systems.  Use infrequently
                     LoadScene(mediaFrame); 
-                    //MediaJump(mediaPlayer.LoungeMediaElement); //TEMP
                 }
 
-                CreateTimer();
+                if (createTimer)
+                {
+                    CreateTimer();
+                }                
             }
             catch (Exception ex)
             {
@@ -2038,7 +2027,7 @@ namespace Lounge
                     if ((diffInSeconds > 1400) && (isAnimating == false))
                     {
                         ColorsRecalc();
-                        MediaRandom();
+                        MediaRandom(false);
                         lastBoom = DateTime.Now; //Reset the Boom
                     }
 
@@ -2278,13 +2267,6 @@ namespace Lounge
                     AudioDevices.Add(audioDeviceInfo);
 
                     loungeEngine.mainWindow.audioDevices.Items.Add(device.name);
-
-                    //TO SET THE SPEAKER OUTPUT
-                    //TODO: save setting and get it here
-                    //if (device.name.ToLower().IndexOf("speaker") > -1)
-                    //{
-                    //    mainWindow.audioDevices.SelectedIndex = (mainWindow.audioDevices.Items.Count - 1);
-                    //}
                 }
             }
             
@@ -2293,7 +2275,6 @@ namespace Lounge
             if (!result) throw new Exception("Init Error");
         }
 
-        //timer 
         private void Tick(object sender, EventArgs e)
         {
             try
