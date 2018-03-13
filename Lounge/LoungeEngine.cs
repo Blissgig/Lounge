@@ -30,6 +30,8 @@ namespace Lounge
         private int currentAudio = 0; //See "AudioNext"
         private int minimumSceneTime = 10;  //Seconds
         private int maximumSceneTime = 20;
+        private int minimumPhoto = 1500;
+        private int maximumPhoto = 3000;
 
         private Color currentColor = Color.FromRgb(144, 0, 0);
         private Color secondaryColor = Colors.Black;
@@ -50,6 +52,8 @@ namespace Lounge
         private string currentVisualization = "";
         private byte currentLEDBrightness = 88;
         private bool isAnimating = false; //Used to note when a storyboard animation is running, to avoid multiple at the same time.  Issue with app performance
+        private string COMPort = "COM3";
+        private int COMSpeed = 115200;
         #endregion
 
         #region Methods
@@ -93,6 +97,7 @@ namespace Lounge
                     }
                 }
 
+                mainWindow.ColorChoices.Items.Clear();
                 mainWindow.ColorChoices.Items.Add("All");
                 mainWindow.ColorChoices.Items.Add("Black and Gray");
                 mainWindow.ColorChoices.Items.Add("Reds - All");
@@ -104,6 +109,8 @@ namespace Lounge
 
 
                 //Audio Visualization Options
+                mainWindow.visualizations.Items.Clear();
+
                 System.Windows.Controls.CheckBox vis = new System.Windows.Controls.CheckBox();
                 vis.Content = "Bars";
                 vis.IsChecked = true;
@@ -126,9 +133,9 @@ namespace Lounge
                 {
                     for (int i = 0; i < mainWindow.audioDevices.Items.Count; i++)
                     {
-                        var x = (string)mainWindow.audioDevices.Items[i];
+                        var s = (string)mainWindow.audioDevices.Items[i];
 
-                        if (x == sValue)
+                        if (s == sValue)
                         {
                             mainWindow.audioDevices.SelectedIndex = i;
                             break;
@@ -148,7 +155,7 @@ namespace Lounge
                     try
                     {
                         //In case the port is not available
-                        serialPort = new SerialPort("COM3", 115200);
+                        serialPort = new SerialPort(COMPort, COMSpeed);
                         serialPort.Open();
                     }
                     catch 
@@ -336,7 +343,7 @@ namespace Lounge
             {
                 if ((bool)checkbox.IsChecked)
                 {
-                    serialPort = new SerialPort("COM3", 115200);
+                    serialPort = new SerialPort(COMPort, COMSpeed);
                     serialPort.Open();
                 }
                 else
@@ -456,6 +463,10 @@ namespace Lounge
 
                     case System.Windows.Input.Key.P: //Play
                         MediaPlay();
+                        break;
+
+                    case System.Windows.Input.Key.S:
+                        SavePlaylist();
                         break;
                 }
             }
@@ -1363,7 +1374,7 @@ namespace Lounge
                 var border = (Border)grid.Parent;
                 var canvas = (Canvas)border.Parent;
                 var lmp = (LoungeMediaPlayer)canvas.Parent;
-                int iMilliseconds = loungeRandom.Next(800, 2000); //So that the players don't move in at the same time
+                int iMilliseconds = loungeRandom.Next(400, 800); //So that the players don't move in at the same time
 
 
                 Storyboard storyboard = new Storyboard();
@@ -1500,19 +1511,21 @@ namespace Lounge
                 int i = loungeRandom.Next(0, 200);
 
                 //50% just change the position of the media
-                //25% load new media
-                //25% load new scene
+                //37% load new media
+                //12% load new scene
                 if (i < 100)
                 {
                     MediaJump(mediaPlayer.LoungeMediaElement);
                 }
-                else if (i > 150)
+                else if (i > 125)
                 {
-                    MediaLoad(mediaPlayer.LoungeMediaElement);
+                    MediaLoad(mediaPlayer.LoungeMediaElement); 
                 }
                 else 
                 {
-                    LoadScene(mediaFrame);
+                    //This can cause music and/or media that is playing to skip on some occasions with some systems.  Use infrequently
+                    LoadScene(mediaFrame); 
+                    //MediaJump(mediaPlayer.LoungeMediaElement); //TEMP
                 }
 
                 CreateTimer();
@@ -1962,6 +1975,7 @@ namespace Lounge
                         break;
                     #endregion
 
+                    #region Bounce
                     case "bounce":
                         Ellipse bubble;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
@@ -1987,6 +2001,7 @@ namespace Lounge
                             }
                         }
                         break;
+                    #endregion
 
                     #region Champagne
                     case "champagne":
@@ -2054,24 +2069,23 @@ namespace Lounge
                     FileInfo file = PhotoFiles[loungeRandom.Next(0, PhotoFiles.Count)];
                     BitmapImage image = new BitmapImage(new Uri(file.FullName));
                     
-                    double left = loungeRandom.Next(stroke, Convert.ToInt16(mediaFrame.ActualWidth * .6));
+                    double left = loungeRandom.Next(stroke, Convert.ToInt16(mediaFrame.ActualWidth * .7));
                     double top = loungeRandom.Next(stroke, Convert.ToInt16(mediaFrame.ActualHeight * .66)); //Images are defauled to 1/3 the size of the media frame.  This may change later based on input during testing.
 
 
-                    System.Windows.Media.Effects.DropShadowEffect eft = new System.Windows.Media.Effects.DropShadowEffect();
-                    eft.Color = currentColor;
-                    eft.Opacity = 1.0;
-                    eft.ShadowDepth = 0;
-                    eft.BlurRadius = 50;
-
+                    System.Windows.Media.Effects.DropShadowEffect effect = new System.Windows.Media.Effects.DropShadowEffect();
+                    effect.Color = currentColor;
+                    effect.Opacity = 1.0;
+                    effect.ShadowDepth = 0;
+                    effect.BlurRadius = 50;
 
                     photo.Source = image;
-                    photo.Effect = eft;
+                    photo.Effect = effect;
 
                     border.Background = new SolidColorBrush(currentColor); 
                     border.Height = (mediaFrame.ActualHeight * .34); 
                     border.Child = photo;
-                    border.Effect = eft;
+                    border.Effect = effect;
 
                     mediaFrame.Photos.Children.Add(border);
                     Canvas.SetLeft(border, top);
@@ -2079,7 +2093,7 @@ namespace Lounge
 
                     Storyboard storyboard = new Storyboard();
                     DoubleAnimation animation = new DoubleAnimation();
-                    animation.Duration = TimeSpan.FromMilliseconds(loungeRandom.Next(1500, 3000));
+                    animation.Duration = TimeSpan.FromMilliseconds(loungeRandom.Next(minimumPhoto, maximumPhoto));
 
                     //A few simple options for how the images are displayed
                     if (loungeRandom.Next(0, 100) < 50)
