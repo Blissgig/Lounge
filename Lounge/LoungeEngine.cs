@@ -340,27 +340,25 @@ namespace Lounge
 
         private void LEDs_Checked(object sender, RoutedEventArgs e)
         {
-            System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
-
-            SettingSave("ArdunioLEDs", (bool)checkbox.IsChecked);
-
             try
             {
-                if ((bool)checkbox.IsChecked)
+                System.Windows.Controls.CheckBox checkbox = (System.Windows.Controls.CheckBox)sender;
+
+                SettingSave("ArdunioLEDs", (bool)checkbox.IsChecked);
+
+                if ((bool)checkbox.IsChecked == false)
                 {
-                    serialPort = new SerialPort(COMPort, COMSpeed);
-                    serialPort.Open();
-                }
-                else
-                {
-                    serialPort.Close();
-                    serialPort.Dispose();
-                    serialPort = null;
+                    if (serialPort != null)
+                    {
+                        serialPort.Close();
+                        serialPort.Dispose();
+                        serialPort = null;
+                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                logException(ex);
             }
         }
 
@@ -402,6 +400,28 @@ namespace Lounge
                 }
                 else
                 {
+                    if ((bool)mainWindow.LEDs.IsChecked == true)
+                    {
+                        if (IsArduinoAvailable() == false)
+                        {
+                            var result = System.Windows.Forms.MessageBox.Show(
+                                "The Arduino is not connected" +
+                                Environment.NewLine +
+                                "Would you like to continue without LED support?"
+                                , "Arduino Unavailable", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                            if (result == DialogResult.No)
+                            {
+                                return;
+                            }
+                        }
+                        
+                        serialPort = new SerialPort(COMPort, COMSpeed);
+                        serialPort.Open();
+                    }
+
+                        
+                    
                     mainWindow.WindowState = System.Windows.WindowState.Minimized;
                     
                     LoadWindows();
@@ -679,7 +699,7 @@ namespace Lounge
 
                     currentAudio++;
 
-                    if (currentAudio >= AudioFiles.Count() && mainWindow.loopAudio.IsChecked == true)
+                    if ((currentAudio >= AudioFiles.Count()) && (mainWindow.loopAudio.IsChecked) == true)
                     {
                         currentAudio = 0;
                     }
@@ -839,8 +859,10 @@ namespace Lounge
                     serialPort.Write(sLEDData);
                 }
             }
-            catch 
-            {    }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
         }
 
         public void ListFiles(DirectoryInfo Folder)
@@ -953,6 +975,30 @@ namespace Lounge
             }
 
             return bReturn;
+        }
+
+        private bool IsArduinoAvailable()
+        {
+            bool bReturn = true;
+            SerialPort port = new SerialPort(COMPort, COMSpeed);
+
+            try
+            {
+                port.Open(); //Will error here if current settings are incorrect, or the device is offline
+            }
+            catch 
+            {
+                bReturn = false;
+            }
+            finally
+            {
+                port.Close();
+                port.Dispose();
+                port = null;
+            }
+
+            return bReturn;
+
         }
 
         private string IconType(FileInfo file)
@@ -1934,8 +1980,8 @@ namespace Lounge
                                 Bubble.Width = loungeRandom.Next(16, 32);
                                 Bubble.Height = Bubble.Width;
                                 Bubble.Stroke = secondary;
-                                Bubble.StrokeThickness = 1;
-                                Bubble.Opacity = 1;
+                                Bubble.StrokeThickness = 2;
+                                Bubble.Opacity = 0.4;
 
 
                                 mediaFrame.Visualizations.Children.Add(Bubble);
@@ -1968,6 +2014,17 @@ namespace Lounge
                                 Storyboard.SetTarget(aniTop, Bubble);
                                 Storyboard.SetTargetProperty(aniTop, new PropertyPath(Canvas.TopProperty));
                                 bubbleStoryboard.Children.Add(aniTop);
+
+
+                                //ColorAnimation colorAnimation = new ColorAnimation();
+                                //colorAnimation.Duration = TimeSpan.FromSeconds(seconds); 
+                                //colorAnimation.From = secondaryColor;
+                                //colorAnimation.To = currentColor;
+                                //colorAnimation.AutoReverse = true;
+
+                                //Storyboard.SetTarget(colorAnimation, Bubble);
+                                //Storyboard.SetTargetProperty(colorAnimation, new PropertyPath("(Ellipse.Fill).(SolidColorBrush.Color)"));
+                                //bubbleStoryboard.Children.Add(colorAnimation);
                             }
 
                             bubbleStoryboard.Begin();
@@ -2102,7 +2159,7 @@ namespace Lounge
                                 foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                                 {
                                     bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
-                                    bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //(255 * .39) = 99.45, then *.01 = .99 max value
+                                    //bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //(255 * .39) = 99.45, then *.01 = .99 max value
 
                                     if (visualData[iValue] > 60)
                                     {
