@@ -1979,6 +1979,7 @@ namespace Lounge
                                 Bubble = new Ellipse();
                                 Bubble.Width = loungeRandom.Next(16, 32);
                                 Bubble.Height = Bubble.Width;
+                                Bubble.Fill = background;
                                 Bubble.Stroke = secondary;
                                 Bubble.StrokeThickness = 2;
                                 Bubble.Opacity = 0.4;
@@ -2014,17 +2015,6 @@ namespace Lounge
                                 Storyboard.SetTarget(aniTop, Bubble);
                                 Storyboard.SetTargetProperty(aniTop, new PropertyPath(Canvas.TopProperty));
                                 bubbleStoryboard.Children.Add(aniTop);
-
-
-                                //ColorAnimation colorAnimation = new ColorAnimation();
-                                //colorAnimation.Duration = TimeSpan.FromSeconds(seconds); 
-                                //colorAnimation.From = secondaryColor;
-                                //colorAnimation.To = currentColor;
-                                //colorAnimation.AutoReverse = true;
-
-                                //Storyboard.SetTarget(colorAnimation, Bubble);
-                                //Storyboard.SetTargetProperty(colorAnimation, new PropertyPath("(Ellipse.Fill).(SolidColorBrush.Color)"));
-                                //bubbleStoryboard.Children.Add(colorAnimation);
                             }
 
                             bubbleStoryboard.Begin();
@@ -2047,6 +2037,17 @@ namespace Lounge
                 bool isBoom = false; //used to trigger function(s) when bass is high enough
                 Ellipse bubble;
 
+                //Get the boom
+                for (int i = 0; i < 20; i++)
+                {
+                    if (visualData[i] > BASS_LEVEL)
+                    {
+                        currentLEDBrightness = Convert.ToByte(visualData[i] / 2);
+                        isBoom = true;
+                        break;
+                    }
+                }
+
                 switch (currentVisualization.ToLower())
                 {
                     #region Bars
@@ -2054,19 +2055,6 @@ namespace Lounge
                         Border bar;
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
-                            //Trigger an effect when the value is high enough
-                            if (iValue < 20)
-                            {
-                                if (isBoom == false)
-                                {
-                                    if (visualData[iValue] > BASS_LEVEL)
-                                    {
-                                        isBoom = true;
-                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
-                                    }
-                                }
-                            }
-
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
                                 bar = (Border)mediaFrame.Visualizations.Children[iValue];
@@ -2082,19 +2070,6 @@ namespace Lounge
                     case "bounce":
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
-                            //Trigger an effect when the value is high enough
-                            if (iValue < 20)
-                            {
-                                if (isBoom == false)
-                                {
-                                    if (visualData[iValue] > BASS_LEVEL)
-                                    {
-                                        isBoom = true;
-                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
-                                    }
-                                }
-                            }
-
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
                                 bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
@@ -2109,19 +2084,6 @@ namespace Lounge
                     case "champagne":
                         for (int iValue = 0; iValue < visualData.Count; iValue++)
                         {
-                            //Trigger an effect when the value is high enough
-                            if (iValue < 20)
-                            {
-                                if (isBoom == false)
-                                {
-                                    if (visualData[iValue] > BASS_LEVEL)
-                                    {
-                                        currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
-                                        isBoom = true;
-                                    }
-                                }
-                            }
-
                             foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                             {
                                 bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
@@ -2143,23 +2105,10 @@ namespace Lounge
 
                             for (int iValue = 0; iValue < visualData.Count; iValue++)
                             {
-                                //Trigger an effect when the value is high enough
-                                if (iValue < 20)
-                                {
-                                    if (isBoom == false)
-                                    {
-                                        if (visualData[iValue] > BASS_LEVEL)
-                                        {
-                                            currentLEDBrightness = Convert.ToByte(visualData[iValue] / 2);
-                                            isBoom = true;
-                                        }
-                                    }
-                                }
-
                                 foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                                 {
                                     bubble = (Ellipse)mediaFrame.Visualizations.Children[iValue];
-                                    //bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //(255 * .39) = 99.45, then *.01 = .99 max value
+                                    bubble.Opacity = ((visualData[iValue] * 0.39) * .01); //(255 * .39) = 99.45, then *.01 = .99 max value
 
                                     if (visualData[iValue] > 60)
                                     {
