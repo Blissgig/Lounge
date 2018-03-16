@@ -192,6 +192,7 @@ namespace Lounge
                 mainWindow.playMedia.Click += PlayMedia_Click;
                 mainWindow.audioPrior.Click += AudioPrior_Click;
                 mainWindow.audioNext.Click += AudioNext_Click;
+                mainWindow.AudioCount.Checked += AudioCount_Checked;
                 mainWindow.appInfo.Click += AppInfo_Click;
                 mainWindow.AudioVolume.ValueChanged += AudioVolume_ValueChanged;
                 mainWindow.audioDevices.SelectionChanged += AudioDevices_SelectionChanged;
@@ -205,11 +206,24 @@ namespace Lounge
                 mainWindow.AudioElement.MediaEnded += AudioElement_MediaNext;
                 mainWindow.AudioElement.MediaFailed += AudioElement_MediaNext;
                 mainWindow.KeyUp += KeyPress;
-
             }
             catch (Exception ex)
             {
                 logException(ex);
+            }
+        }
+
+        private void AudioCount_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkbox = (System.Windows.Controls.CheckBox)sender;
+
+            if ((bool)checkbox.IsChecked)
+            {
+                mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
+            }
+            else
+            {
+                mainWindow.AudioElement.Volume = 0;
             }
         }
 
@@ -317,7 +331,7 @@ namespace Lounge
             return bReturn;
         }
 
-        public void SettingSave(string setting, string value)
+        private void SettingSave(string setting, string value)
         {
             try
             {
@@ -331,7 +345,7 @@ namespace Lounge
             }
         }
 
-        public void SettingSave(string setting, bool value)
+        private void SettingSave(string setting, bool value)
         {
             Properties.Settings.Default[setting] = value;
 
@@ -390,7 +404,7 @@ namespace Lounge
             SettingSave("LoopAudio", (bool)checkbox.IsChecked);
         }
 
-        public void MediaPlay()
+        private void MediaPlay()
         {
             try
             {
@@ -559,7 +573,7 @@ namespace Lounge
             }
         }
 
-        public void SelectAll(bool isSelected = true)
+        private void SelectAll(bool isSelected = true)
         {
             try
             {
@@ -589,7 +603,7 @@ namespace Lounge
             }
         }
 
-        public void ClearAll()
+        private void ClearAll()
         {
             try
             {
@@ -609,13 +623,13 @@ namespace Lounge
             }
         }
 
-        public void Home()
+        private void Home()
         {
             breadcrumbs.Clear();
             ListFiles(null);
         }
 
-        public void Back()
+        private void Back()
         {
             if (breadcrumbs.Count > 0)
             {
@@ -631,7 +645,7 @@ namespace Lounge
             }
         }
 
-        public void AddRemoveMedia(List<FileInfo> files, FileInfo file)
+        private void AddRemoveMedia(List<FileInfo> files, FileInfo file)
         {
             try
             {
@@ -683,12 +697,12 @@ namespace Lounge
             }
         }
 
-        public void AudioNext()
+        private void AudioNext()
         {
             try
             {
                 //To insure that this function is only called while in a loop or available media
-                if (currentAudio < AudioFiles.Count())
+                if ((currentAudio < AudioFiles.Count()) && ((bool)mainWindow.AudioCount.IsChecked))
                 {
                     FileInfo file = AudioFiles[currentAudio];
 
@@ -713,7 +727,7 @@ namespace Lounge
             }
         }
 
-        public void AudioPrior()
+        private void AudioPrior()
         {
             currentAudio--;
             if (currentAudio < 0)
@@ -724,12 +738,12 @@ namespace Lounge
             AudioNext();
         }
 
-        public void AudioVolume()
+        private void AudioVolume()
         {
             mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
         }
         
-		public void SavePlaylist()
+		private void SavePlaylist()
 		{
 			try
 			{
@@ -786,7 +800,7 @@ namespace Lounge
             }
 		}
 		
-        public void CreateBreadcrumb(string title)
+        private void CreateBreadcrumb(string title)
         {
             try
             {
@@ -1171,7 +1185,7 @@ namespace Lounge
             return sAppName;
         }
 
-        public void AppInfo()
+        private void AppInfo()
         {
             System.Windows.Forms.MessageBox.Show(
                 "This application is copyright © 2018 by James Rose" + 
@@ -1229,7 +1243,12 @@ namespace Lounge
             {
                 UnloadScene(mediaFrame);
 
-                
+                //No need to display players if this is not checked off.
+                if (!(bool)mainWindow.VideoCount.IsChecked)
+                {
+                    return;
+                }
+
                 byte bPlayerCount = 0;
                 double dHeight = 400;
                 double dWidth = 400;
@@ -1507,10 +1526,14 @@ namespace Lounge
             {
                 MediaTransition(mediaElement);
 
-                int i = loungeRandom.Next(0, VideoFiles.Count);
-                FileInfo media = VideoFiles[i];
-                mediaElement.Source = new Uri(media.FullName);
-                mediaElement.Play();
+                //The label is now a checkbox that can be disabled while playing
+                if ((bool)mainWindow.VideoCount.IsChecked)
+                {
+                    int i = loungeRandom.Next(0, VideoFiles.Count);
+                    FileInfo media = VideoFiles[i];
+                    mediaElement.Source = new Uri(media.FullName);
+                    mediaElement.Play();
+                }
             }
             catch (Exception ex)
             {
@@ -1613,9 +1636,9 @@ namespace Lounge
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                logException(ex);
             }
         }
 
@@ -1632,6 +1655,21 @@ namespace Lounge
             }
             catch 
             {  }
+        }
+
+        private void UnloadWindows()
+        {
+            try
+            {
+                foreach(LoungeMediaFrame mediaFrame in mediaFrames)
+                {
+                    UnloadWindow(mediaFrame.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex);
+            }
         }
 
         private void CreateTimer()
@@ -1704,7 +1742,7 @@ namespace Lounge
             }
         }
 
-        public void ColorUpdated(string value)
+        private void ColorUpdated(string value)
         {
             try
             {
@@ -1791,7 +1829,7 @@ namespace Lounge
             }
         }
 
-        public void ColorsRecalc()
+        private void ColorsRecalc()
         {
             try
             {
@@ -1850,7 +1888,7 @@ namespace Lounge
             }
         }
 
-        public void VisualizationSetup()
+        private void VisualizationSetup()
         {
             try
             {
@@ -2177,7 +2215,7 @@ namespace Lounge
         {
             try
             {
-                if (PhotoFiles.Count > 0)
+                if ((PhotoFiles.Count > 0) && ((bool)mainWindow.PhotoCount.IsChecked))
                 {
                     Border border = new Border();
                     Image photo = new Image();
