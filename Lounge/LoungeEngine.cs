@@ -920,6 +920,34 @@ namespace Lounge
                             mainWindow.mediaItems.Children.Add(mediaItem);
                         }
                     }
+
+                    //Show selected files
+                    foreach(FileInfo audioFile in AudioFiles)
+                    {
+                        mediaItem = new MediaItem(this, audioFile, System.IO.Path.GetFileNameWithoutExtension(audioFile.Name));
+                        mediaItem.Icon.Source = new BitmapImage(new Uri(IconType(audioFile), UriKind.Relative));
+                        mediaItem.Selected = true;
+
+                        mainWindow.mediaItems.Children.Add(mediaItem);
+                    }
+
+                    foreach (FileInfo photoFile in PhotoFiles)
+                    {
+                        mediaItem = new MediaItem(this, photoFile, System.IO.Path.GetFileNameWithoutExtension(photoFile.Name));
+                        mediaItem.Icon.Source = new BitmapImage(new Uri(IconType(photoFile), UriKind.Relative));
+                        mediaItem.Selected = true;
+
+                        mainWindow.mediaItems.Children.Add(mediaItem);
+                    }
+
+                    foreach (FileInfo videoFile in VideoFiles)
+                    {
+                        mediaItem = new MediaItem(this, videoFile, System.IO.Path.GetFileNameWithoutExtension(videoFile.Name));
+                        mediaItem.Icon.Source = new BitmapImage(new Uri(IconType(videoFile), UriKind.Relative));
+                        mediaItem.Selected = true;
+
+                        mainWindow.mediaItems.Children.Add(mediaItem);
+                    }
                 }
                 else
                 {
