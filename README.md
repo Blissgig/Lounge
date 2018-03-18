@@ -5,7 +5,7 @@ This is not your standard media player.  This is more of an art project/multi-me
 
 I have a multi-monitor setup at home and created a hacked together piece of software to play media while I code, play games or just in the background.  This is a replacement for that software, but much more.  It connects to addressable LEDs to affect them based on situations within the application.
 
-March 13, 2018: Happy to report third alpha version ready for testing.
+March 18, 2018: The feature set is complete and it is now in beta test mode.
 
 ------------------------------------------------
 Specifications:
@@ -24,7 +24,8 @@ Keyboard Shortcuts:
 * B = Back one folder level
 * H = Home folders
 * P = Play
-* Escape = close application
+* S = Save playlist
+* Escape = Close application
 * Volume Mute = Mute / Unmute volume
 
 ------------------------------------------------
