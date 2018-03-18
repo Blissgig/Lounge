@@ -741,6 +741,7 @@ namespace Lounge
         private void AudioVolume()
         {
             mainWindow.AudioElement.Volume = mainWindow.AudioVolume.Value;
+            mainWindow.AudioVolume.ToolTip = "Audio Volume: " + Math.Round(mainWindow.AudioVolume.Value * 100, 0).ToString() + "%";
         }
         
 		private void SavePlaylist()
