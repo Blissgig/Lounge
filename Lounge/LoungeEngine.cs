@@ -416,6 +416,13 @@ namespace Lounge
                 {
                     if ((bool)mainWindow.LEDs.IsChecked == true)
                     {
+                        //User can press Play to refresh application, so need to close the serial port.
+                        if (serialPort != null)
+                        {
+                            serialPort.Close();
+                            serialPort = null;
+                        }
+
                         if (IsArduinoAvailable() == false)
                         {
                             var result = System.Windows.Forms.MessageBox.Show(
