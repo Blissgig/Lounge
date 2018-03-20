@@ -47,3 +47,4 @@ Note: It is VERY important that when working with an external power source like 
 Technical Support:
 * Turn on the Arduino before starting Lounge. If the Arduino is not powered up BEFORE starting Lounge, then Lounge will not be able to access the LEDs
 * Run the script "Lounge_LEDs.ino into the Arduino before starting Lounge.
+* The software has only been tested on the following Asus computer.  Because of the number of media playing at a given time, plus visualizations a good pc with a very good GPU is recommended.   https://www.amazon.com/gp/product/B01B96MNNA/ref=oh_aui_search_detailpage?ie=UTF8&psc=1
