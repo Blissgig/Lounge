@@ -46,5 +46,6 @@ Note: It is VERY important that when working with an external power source like 
 ------------------------------------------------
 Technical Support:
 * Turn on the Arduino before starting Lounge. If the Arduino is not powered up BEFORE starting Lounge, then Lounge will not be able to access the LEDs
+* If you are using two or more LED strips you will have to use a power supply, and if you do not have the power supply turned on when Lounge starts the application will hang/lock up while attempting to connect to the Arduino.
 * Run the script "Lounge_LEDs.ino into the Arduino before starting Lounge.
 * The software has only been tested on the following Asus computer.  Because of the number of media playing at a given time, plus visualizations a good pc with a very good GPU is recommended.   https://www.amazon.com/gp/product/B01B96MNNA/ref=oh_aui_search_detailpage?ie=UTF8&psc=1
