@@ -449,7 +449,7 @@ namespace Lounge
 
                     AudioNext(); //Has to happen after LoadWindows()
 
-                    ColorUpdate();
+                    ColorsRecalc();
 
                     foreach (LoungeMediaFrame mediaFrame in mediaFrames)
                     {
